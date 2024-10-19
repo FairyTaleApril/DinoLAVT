@@ -24,7 +24,7 @@ class DINOv2:
         inputs = self.image_processor(images, return_tensors="pt")
         return inputs
 
-    def get_cls_tokens(self, inputs):
+    def get_tokens(self, inputs):
         """
         Obtain the class tokens from the model's output for the given inputs.
 
@@ -32,12 +32,12 @@ class DINOv2:
             inputs: Processed image tensors.
 
         Returns:
-            cls_tokens (batch_size, hidden_size): A list of class tokens extracted from the model's output.
+            outputs (batch_size, hidden_size): A list of tokens.
         """
         with torch.no_grad():
             outputs = self.model(**inputs)
-        cls_tokens = outputs.last_hidden_state[:, 0, :]
-        return cls_tokens
+        outputs = outputs.last_hidden_state[:, 1:, :]
+        return outputs
 
 
 def main():
@@ -46,7 +46,7 @@ def main():
 
     dinov2 = DINOv2()
     inputs = dinov2.process_image(image)
-    cls_token = dinov2.get_cls_tokens(inputs)
+    cls_token = dinov2.get_tokens(inputs)
     print(cls_token.shape)
 
 
