@@ -6,12 +6,8 @@ import torch.utils.data as data
 from PIL import Image
 from transformers import BertTokenizer
 
-from refer import REFER
-from args import get_parser
-
-# Dataset configuration initialization
-parser = get_parser()
-args = parser.parse_args()
+from data.refer import REFER
+from models.dinov2 import DINOv2
 
 
 class MyDataset(data.Dataset):
@@ -20,7 +16,7 @@ class MyDataset(data.Dataset):
         self.image_transforms = image_transforms
         self.target_transforms = target_transforms
         self.split = split
-        self.refer = REFER(args.refer_data_root, args.dataset, args.splitBy)
+        self.refer = REFER(args.data_dir, args.dataset, args.splitBy)
 
         self.max_tokens = 20
 
@@ -104,4 +100,8 @@ class MyDataset(data.Dataset):
             tensor_embeddings = self.input_ids[index][choice_sent]
             attention_mask = self.attention_masks[index][choice_sent]
 
-        return img, target, tensor_embeddings, attention_mask
+        dinov2 = DINOv2()
+        inputs = dinov2.process_image(img)
+        dino_token = dinov2.get_tokens(inputs)
+
+        return dino_token, target, tensor_embeddings, attention_mask
