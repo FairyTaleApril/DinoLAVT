@@ -40,8 +40,8 @@ class VisionLanguageAttention(nn.Module):
 
         # Out projection
         self.out_project = nn.Sequential(
-            nn.Conv1d(self.value_channels, self.out_channels, kernel_size=1, stride=1),
-            nn.InstanceNorm1d(self.out_channels))
+            nn.Conv1d(self.value_channels, self.value_channels, kernel_size=1, stride=1),
+            nn.InstanceNorm1d(self.value_channels))
 
     def forward(self, x, l, l_mask):
         """

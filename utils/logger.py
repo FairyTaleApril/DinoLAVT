@@ -16,13 +16,13 @@ class Logger:
 
     def _initialize(self, args=None):
         self.log_file = None
-        if args.log_file is not None:
-            log_dir = os.path.dirname(args.log_file)
-            os.makedirs(log_dir, exist_ok=True)
-            try:
-                self.log_file = open(args.log_file, 'w')
-            except Exception as e:
-                print(f"An error occurred: {e}")
+        # if args.log_file is not None:
+        #     log_dir = os.path.dirname(args.log_file)
+        #     os.makedirs(log_dir, exist_ok=True)
+        #     try:
+        #         self.log_file = open(args.log_file, 'w')
+        #     except Exception as e:
+        #         print(f"An error occurred: {e}")
 
     def __del__(self):
         if self.log_file is not None:

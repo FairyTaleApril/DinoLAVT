@@ -5,8 +5,9 @@ import gc
 
 import torch
 import torch.nn as nn
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 import torch.utils.data as data
+from tqdm import tqdm
 
 from utils.args_parser import get_args_parser
 from utils.logger import info, Logger
@@ -36,7 +37,8 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
 
     loss = 0.0
     i = 0
-    for image, target, sentences, attentions in data_loader:
+    for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Training LAVT..."):
+        image, target, sentences, attentions = data
         image = image.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
         sentences = sentences.to(device, non_blocking=True)
@@ -83,9 +85,9 @@ def main(args):
         train_ds,
         batch_size=args.batch_size,
         shuffle=args.drop_shuffle,
-        drop_last=args.drop_shuffle,
-        pin_memory=args.pin_mem,
-        num_workers=int(args.num_workers))
+        drop_last=args.drop_shuffle)
+        # pin_memory=args.pin_mem,
+        # num_workers=int(args.num_workers))
 
     model = Lavt(args)
     model.to(device)
@@ -96,8 +98,8 @@ def main(args):
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
     tb_writer = None
-    if args.tb_dir is not None:
-        tb_writer = SummaryWriter(log_dir=args.tb_dir)
+    # if args.tb_dir is not None:
+    #     tb_writer = SummaryWriter(log_dir=args.tb_dir)
 
     # training
     info(f"Start training for {args.epochs} epochs")
@@ -108,8 +110,8 @@ def main(args):
         train_info = train_one_epoch(model, criterion, optimizer, train_dl, device)
         info(f'Train info:')
         for k, v in train_info.items():
-            if tb_writer is not None:
-                tb_writer.add_scalar(k, v, epoch)
+            # if tb_writer is not None:
+            #     tb_writer.add_scalar(k, v, epoch)
             info(f'{k}: {v}')
 
         if epoch % args.save_freq == 0 or epoch == args.epochs:
@@ -119,9 +121,9 @@ def main(args):
             info(f'Save the model to {path}')
             model.to(device)
 
-    if tb_writer is not None:
-        tb_writer.flush()
-        tb_writer.close()
+    # if tb_writer is not None:
+    #     tb_writer.flush()
+    #     tb_writer.close()
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     info(f'Training time {total_time_str}')

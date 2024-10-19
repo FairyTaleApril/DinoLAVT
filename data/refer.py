@@ -57,6 +57,7 @@ class REFER:
         # load refs from data/dataset/refs(dataset).json
         tic = time.time()
         ref_file = osp.join(self.DATA_DIR, 'refs(' + splitBy + ').p')
+        # ref_file = 'data/refcoco+/refcoco+/refs(unc).p'
         self.data = {}
         self.data['dataset'] = dataset
         f = open(ref_file, 'r')

@@ -2,10 +2,10 @@ import argparse
 
 def get_args_parser():
     parser = argparse.ArgumentParser('LAVT with Dino', add_help=False)
-    parser.add_argument('--batch_size', default=8, type=int,
+    parser.add_argument('--batch_size', default=1, type=int,
                         help='Batch size per GPU')
     parser.add_argument('--start_epoch', default=1, type=int, help='start training epoch')
-    parser.add_argument('--epochs', default=400, type=int, help='total training epochs')
+    parser.add_argument('--epochs', default=40, type=int, help='total training epochs')
     parser.add_argument('--save_freq', default=20, type=int, help='saving model frequency(epoch)')
     # parser.add_argument('--eval_freq', default=40, type=int, help='evaluation frequency(epoch)')
     parser.add_argument('--tb_dir', default=None, type=str,
@@ -15,9 +15,9 @@ def get_args_parser():
                         help='device to use for training / testing')
 
     # Dataset parameters
-    parser.add_argument('--data_dir', default=None, type=str,
+    parser.add_argument('--data_dir', default='data', type=str,
                         help='directory of dataset')
-    parser.add_argument('--dataset', default='refcoco', help='refcoco, refcoco+, or refcocog')
+    parser.add_argument('--dataset', default='refcoco+', help='refcoco, refcoco+, or refcocog')
     parser.add_argument('--splitBy', default='unc', help='change to umd or google when the dataset is G-Ref (RefCOCOg)')
     parser.add_argument('--num_workers', default=8, type=int)
     parser.add_argument('--pin_mem', action='store_true',
@@ -35,7 +35,7 @@ def get_args_parser():
     parser.add_argument('--ckpt', type=str, default=None, help='where to load model checkpoint')
     parser.add_argument('--ckpt_output_dir', type=str, default=None, help='where to save checkpoint')
     parser.add_argument('--grad_checkpointing', action='store_true')
-    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.00005, metavar='LR',
                         help='learning rate (absolute lr)')
 
     return parser.parse_args()

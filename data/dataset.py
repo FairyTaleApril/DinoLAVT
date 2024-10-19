@@ -29,7 +29,7 @@ class MyDataset(data.Dataset):
 
         self.input_ids = []
         self.attention_masks = []
-        self.tokenizer = BertTokenizer.from_pretrained(args.bert_tokenizer)
+        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         self.eval_mode = eval_mode
         # if we are testing on a dataset, test all sentences of an object;
