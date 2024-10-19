@@ -5,6 +5,16 @@ import torch.nn.functional as F
 
 class VisionLanguageAttention(nn.Module):
     def __init__(self, v_in_channels, l_in_channels, key_channels, value_channels, num_heads=1):
+        """
+        Initializes the VisionLanguageAttention module.
+
+        Args:
+            v_in_channels (int): Number of input channels for visual features.
+            l_in_channels (int): Number of input channels for language features.
+            key_channels (int): Number of channels for the query and key projections.
+            value_channels (int): Number of channels for the value projections.
+            num_heads (int): Number of attention heads.
+        """
         super(VisionLanguageAttention, self).__init__()
 
         # x shape: (B, H*W, v_in_channels)
@@ -34,9 +44,17 @@ class VisionLanguageAttention(nn.Module):
             nn.InstanceNorm1d(self.out_channels))
 
     def forward(self, x, l, l_mask):
-        # x shape: (B, H*W, v_in_channels)
-        # l shape: (B, l_in_channels, N_l)
-        # l_mask shape: (B, N_l, 1)
+        """
+        Forward pass for the VisionLanguageAttention module.
+
+        Args:
+            x (B, H*W, v_in_channels): Visual input tensor.
+            l (B, l_in_channels, N_l): Language input tensor.
+            l_mask (B, N_l, 1): Mask tensor for the language input.
+
+        Returns:
+            torch.Tensor (B, H*W, key_channels): Output tensor.
+        """
         B, HW, n_l = x.size(0), x.size(1), l.size(-1)
         l_mask = l_mask.permute(0, 2, 1)  # (B, N_l, 1) -> (B, 1, N_l)
 
@@ -66,6 +84,18 @@ class VisionLanguageAttention(nn.Module):
 
 class PWAM(nn.Module):
     def __init__(self, dim, v_in_channels, l_in_channels, key_channels, value_channels, num_heads=0, dropout=0.0):
+        """
+        Initializes the PWAM module.
+
+        Args:
+            dim (int): The dimension of the input feature.
+            v_in_channels (int): Number of input channels for visual features.
+            l_in_channels (int): Number of input channels for language features.
+            key_channels (int): Number of channels for the key projections.
+            value_channels (int): Number of channels for the value projections.
+            num_heads (int): Number of attention heads.
+            dropout (float): Dropout probability for the layers.
+        """
         super(PWAM, self).__init__()
 
         # x shape: (B, H*W, dim)
@@ -82,8 +112,17 @@ class PWAM(nn.Module):
             nn.Dropout(dropout))
 
     def forward(self, x, l, l_mask):
-        # x shape: (B, H*W, dim)
-        # l shape: (B, dim, N_l)
+        """
+        Forward pass for the PWAM module.
+
+        Args:
+            x (B, H*W, dim): Input tensor.
+            l (B, dim, N_l): Language input tensor.
+            l_mask (B, N_l, 1): Mask tensor for the language input.
+
+        Returns:
+            torch.Tensor (B, H*W, dim): Output tensor.
+        """
         vis = self.vis_project(x.permute(0, 2, 1))  # (B, dim, H*W)
         att = self.vis_lang_att(x, l, l_mask).permute(0, 2, 1)  # (B, dim, H*W)
 
