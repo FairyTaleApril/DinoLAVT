@@ -9,7 +9,7 @@ import torch.utils.data as data
 from torchvision import transforms
 from tqdm import tqdm
 from datasets import load_dataset
-from transformers import GPT2Tokenizer
+from transformers import GPT2Tokenizer, BertModel
 import numpy as np
 from pycocotools import mask
 
@@ -18,6 +18,7 @@ from utils.logger import info, Logger, error
 import utils.util as util
 from models.lavt import Lavt
 
+from data.dataset import MyDataset
 from data.dataset_hug import RefCOCOPlusDataset
 
 
@@ -26,11 +27,16 @@ def criterion(input, target, device):
     return nn.functional.cross_entropy(input, target, weight=weight)
 
 
-def get_dataset(transform):
+def get_dataset(image_set, image_transform, target_transforms, args):
+    ds = MyDataset(args,
+                   split=image_set,
+                   image_transforms=image_transform,
+                   target_transforms=target_transforms
+                   )
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
     dataset = load_dataset("lmms-lab/RefCOCOplus", split='val')
-    ds = RefCOCOPlusDataset(dataset, tokenizer, image_transforms=transform)
+    ds = RefCOCOPlusDataset(dataset, tokenizer, image_transforms=image_transform)
 
     return ds
 
@@ -41,15 +47,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
     loss = 0.0
     i = 0
     for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Training LAVT..."):
-        image = data['image']
-        sentences = data['answer']
-        attentions = data['answer_mask']
-        seg = data['segmentation']
-        if type(seg[0]) == list:  # polygon
-            error('segment is a list in list')
-        m = mask.decode(seg)
-        m = np.sum(m, axis=2)
-        target = m.astype(np.uint8)
+        image, target, sentences, attentions = data
 
         image = image.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
@@ -58,7 +56,12 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
         sentences = sentences.squeeze(1)
         attentions = attentions.squeeze(1)
 
-        output = model(image, sentences, l_mask=attentions)
+        bert_model = BertModel.from_pretrained('bert-base-uncased')
+        last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
+        embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
+        attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
+
+        output = model(image, embedding, l_mask=attentions)
 
         loss = criterion(output, target, device)
         optimizer.zero_grad()
@@ -85,12 +88,15 @@ def main(args):
     info('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
     info("{}".format(args).replace(', ', ',\n'))
 
-    transform = transforms.Compose([
-        transforms.Resize(args.img_size, args.img_size),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    image_transform = transforms.Compose([
+        # transforms.Resize(args.img_size, args.img_size),
+        transforms.ToTensor()
+        # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-    train_ds = get_dataset("train", transform=None, args=args)  # TODO: define transform
+    target_transforms = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    train_ds = get_dataset("train", image_transform=None, target_transforms=target_transforms, args=args)
     # dataset_test = get_dataset("val", transform=transform, args=args)
 
     train_dl = data.DataLoader(
