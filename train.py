@@ -2,32 +2,35 @@ import datetime
 import os
 import time
 import gc
-
 import torch
 import torch.nn as nn
 # from torch.utils.tensorboard import SummaryWriter
 import torch.utils.data as data
+from torchvision import transforms
 from tqdm import tqdm
+from datasets import load_dataset
+from transformers import GPT2Tokenizer
+import numpy as np
+from pycocotools import mask
 
 from utils.args_parser import get_args_parser
-from utils.logger import info, Logger
+from utils.logger import info, Logger, error
 import utils.util as util
 from models.lavt import Lavt
 
-from data.dataset import MyDataset
+from data.dataset_hug import RefCOCOPlusDataset
 
 
-def criterion(input, target):
-    weight = torch.FloatTensor([0.9, 1.1]).cuda()
+def criterion(input, target, device):
+    weight = torch.FloatTensor([0.9, 1.1]).to(device)
     return nn.functional.cross_entropy(input, target, weight=weight)
 
 
-def get_dataset(image_set, transform, args):
-    ds = MyDataset(args,
-                      split=image_set,
-                      image_transforms=transform,
-                      target_transforms=None
-                      )
+def get_dataset(transform):
+    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+    tokenizer.pad_token = tokenizer.eos_token
+    dataset = load_dataset("lmms-lab/RefCOCOplus", split='val')
+    ds = RefCOCOPlusDataset(dataset, tokenizer, image_transforms=transform)
 
     return ds
 
@@ -38,7 +41,16 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
     loss = 0.0
     i = 0
     for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Training LAVT..."):
-        image, target, sentences, attentions = data
+        image = data['image']
+        sentences = data['answer']
+        attentions = data['answer_mask']
+        seg = data['segmentation']
+        if type(seg[0]) == list:  # polygon
+            error('segment is a list in list')
+        m = mask.decode(seg)
+        m = np.sum(m, axis=2)
+        target = m.astype(np.uint8)
+
         image = image.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
         sentences = sentences.to(device, non_blocking=True)
@@ -48,7 +60,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
 
         output = model(image, sentences, l_mask=attentions)
 
-        loss = criterion(output, target)
+        loss = criterion(output, target, device)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -73,11 +85,11 @@ def main(args):
     info('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
     info("{}".format(args).replace(', ', ',\n'))
 
-    # transform = transforms.Compose([
-    #     transforms.Resize(args.img_size, args.img_size),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    # ])
+    transform = transforms.Compose([
+        transforms.Resize(args.img_size, args.img_size),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
     train_ds = get_dataset("train", transform=None, args=args)  # TODO: define transform
     # dataset_test = get_dataset("val", transform=transform, args=args)
 
