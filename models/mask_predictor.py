@@ -4,18 +4,10 @@ from torch.nn import functional as F
 
 
 class MaskPredictor(nn.Module):
-    def __init__(self, in_feat_dim, factor=2, is_last=False):
-        """
-        Initializes the MaskPredictor module.
-
-        Args:
-            in_feat_dim (int): The input feature dimension.
-            factor (int): Factor to reduce the hidden size. Defaults to 2.
-            is_last (bool): Indicates whether this is the last mask predictor in the sequence.
-                            If True, the output will have 2 channels (for binary mask prediction).
-        """
+    def __init__(self, config, layer_id, factor=2):
         super(MaskPredictor, self).__init__()
-
+        num_layers = len(config.depths)
+        in_feat_dim = int(config.token_size * 2 ** (num_layers - 1 - layer_id))
         hidden_size = in_feat_dim // factor
 
         self.seq = nn.Sequential(
@@ -26,7 +18,7 @@ class MaskPredictor(nn.Module):
             nn.BatchNorm2d(hidden_size),
             nn.ReLU()
         )
-        self.conv = nn.Conv2d(hidden_size, 2, 1) if is_last else nn.Identity()
+        self.conv = nn.Conv2d(hidden_size, 2, 1) if layer_id < num_layers - 2 else nn.Identity()
 
     def forward(self, x, f):
         """
