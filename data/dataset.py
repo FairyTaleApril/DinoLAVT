@@ -79,10 +79,14 @@ class MyDataset(data.Dataset):
         annot[ref_mask == 1] = 1
 
         annot = Image.fromarray(annot.astype(np.uint8), mode="P")
+        target = annot
 
-        if self.image_transforms is not None:
-            # resize, from PIL to tensor, and mean and std normalization
-            img, target = self.image_transforms(img, annot)
+        # if self.image_transforms is not None:
+        #     # resize, from PIL to tensor, and mean and std normalization
+        #     img = self.image_transforms(img)
+        #
+        # if self.target_transforms is not None:
+        #     target = self.target_transforms(target)
 
         if self.eval_mode:
             embedding = []
@@ -103,5 +107,8 @@ class MyDataset(data.Dataset):
         dinov2 = DINOv2()
         inputs = dinov2.process_image(img)
         dino_token = dinov2.get_tokens(inputs)
+
+        if self.target_transforms is not None:
+            target = self.target_transforms(target)
 
         return dino_token, target, tensor_embeddings, attention_mask

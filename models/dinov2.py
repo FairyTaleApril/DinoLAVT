@@ -37,7 +37,8 @@ class DINOv2:
         with torch.no_grad():
             outputs = self.model(**inputs)
         outputs = outputs.last_hidden_state[:, 1:, :]
-        outputs = outputs.reshape(outputs[0], 16, 16)
+        outputs = outputs.squeeze(0).permute(1, 0)
+        outputs = outputs.reshape(768, 16, 16)
         return outputs
 
 

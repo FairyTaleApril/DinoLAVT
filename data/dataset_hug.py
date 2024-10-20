@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.utils.data import Dataset
 from PIL import Image
@@ -7,9 +8,10 @@ from transformers import GPT2Tokenizer
 from torchvision import transforms
 from datasets import load_dataset
 from torch.nn.utils.rnn import pad_sequence
-# can set as any tokenizer 
-tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-tokenizer.pad_token = tokenizer.eos_token  
+from pycocotools import mask
+
+from models.dinov2 import DINOv2
+# can set as any tokenizer
 
 def custom_collate_fn(batch): #padding text sequences to the same length
     images = torch.stack([item['image'] for item in batch])  
@@ -53,26 +55,40 @@ class RefCOCOPlusDataset(Dataset):
 
         image = sample['image']
 
-        if self.transform:
-            image = self.transform(image)
-
         question = sample['question']
         answer = sample['answer'][0]
 
         question_inputs = self.text_tokenizer(question, return_tensors="pt", padding=True, truncation=True)
-        answer_inputs = self.text_tokenizer(answer, return_tensors="pt", padding=True, truncation=True) 
+        answer_inputs = self.text_tokenizer(answer, return_tensors="pt", padding=True, truncation=True)
 
-        return {
-            'image': image,
-            'question': question_inputs['input_ids'].squeeze(0), 
-            'question_mask': question_inputs['attention_mask'].squeeze(0),
-            'answer': answer_inputs['input_ids'].squeeze(0),
-            'answer_mask': answer_inputs['attention_mask'].squeeze(0),
-            'segmentation': torch.tensor(sample['segmentation']),  
-            'bbox': torch.tensor(sample['bbox']), 
-            'iscrowd': torch.tensor(sample['iscrowd']),
-            'file_name': sample['file_name']
-        }
+        dinov2 = DINOv2()
+        inputs = dinov2.process_image(image)
+        dino_token = dinov2.get_tokens(inputs)
+        sentence = answer_inputs['input_ids'].squeeze(0)
+        attentions = answer_inputs['attention_mask'].squeeze(0)
+        seg = sample['segmentation']
+        if type(seg[0]) != list:
+            seg = [seg]
+        rle = mask.frPyObjects(seg, image.height, image.width)
+        m = mask.decode(rle)
+        m = np.sum(m, axis=2)  # sometimes there are multiple binary map (corresponding to multiple segs)
+        target = m.astype(np.uint8)
+        if self.transform is not None:
+            target = self.transform(target)
+
+        return dino_token, target, sentence, attentions
+
+        # return {
+        #     'image': image,
+        #     'question': question_inputs['input_ids'].squeeze(0),
+        #     'question_mask': question_inputs['attention_mask'].squeeze(0),
+        #     'answer': answer_inputs['input_ids'].squeeze(0),
+        #     'answer_mask': answer_inputs['attention_mask'].squeeze(0),
+        #     'segmentation': torch.tensor(sample['segmentation']),
+        #     'bbox': torch.tensor(sample['bbox']),
+        #     'iscrowd': torch.tensor(sample['iscrowd']),
+        #     'file_name': sample['file_name']
+        # }
     
 
 
@@ -88,7 +104,8 @@ class RefCOCOPlusDataset(Dataset):
 
 # dataset = load_dataset("lmms-lab/RefCOCOplus", split='val')
 
-
+# tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+# tokenizer.pad_token = tokenizer.eos_token
 # train_dataset = RefCOCOPlusDataset(dataset, tokenizer, image_transforms=transform)
 
 
