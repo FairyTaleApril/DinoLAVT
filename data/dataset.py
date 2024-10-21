@@ -13,7 +13,8 @@ from models.dinov2 import DINOv2
 
 
 class MyDataset(data.Dataset):
-    def __init__(self, args, image_transforms=None, target_transforms=None, split='train', eval_mode=False):
+    def __init__(self, args, image_transforms=None, target_transforms=None, split='train'):
+        self.dinov2 = DINOv2()
         self.classes = []
         self.image_transforms = image_transforms
         self.target_transforms = target_transforms
@@ -21,7 +22,6 @@ class MyDataset(data.Dataset):
         self.refer = REFER(args.data_dir, args.img_dir, args.dataset, args.splitBy, args.max_image_num)
 
         self.max_tokens = 20
-
         self.img_size = args.img_size
 
         ref_ids = self.refer.getRefIds(split=self.split)
@@ -35,7 +35,6 @@ class MyDataset(data.Dataset):
         self.attention_masks = []
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-        self.eval_mode = eval_mode
         # if we are testing on a dataset, test all sentences of an object;
         # o/w, we are validating during training, randomly sample one sentence for efficiency
         for r in ref_ids:
@@ -72,52 +71,27 @@ class MyDataset(data.Dataset):
     def __getitem__(self, index):
         this_ref_id = self.ref_ids[index]
         this_img_id = self.refer.getImgIds(this_ref_id)
-        this_img = self.refer.Imgs[this_img_id[0]]
-
-        img = Image.open(os.path.join(self.refer.IMAGE_DIR, this_img['file_name'])).convert("RGB")
-
         ref = self.refer.loadRefs(this_ref_id)
-
         ref_mask = np.array(self.refer.getMask(ref[0])['mask'])
         annot = np.zeros(ref_mask.shape)
         annot[ref_mask == 1] = 1
 
-        target = Image.fromarray(annot.astype(np.uint8), mode="P")
-
-        img = F.resize(img, (self.img_size, self.img_size))
+        this_img = self.refer.Imgs[this_img_id[0]]
+        img = Image.open(os.path.join(self.refer.IMAGE_DIR, this_img['file_name'])).convert("RGB")
+        img = F.resize(img, [self.img_size, self.img_size])
         img = F.to_tensor(img)
         img = F.normalize(img, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        target = F.resize(target, (self.img_size, self.img_size), interpolation=Image.NEAREST)
+
+        target = Image.fromarray(annot.astype(np.uint8), mode="P")
+        target = F.resize(target, [self.img_size, self.img_size], interpolation=Image.NEAREST)
         target = torch.as_tensor(np.asarray(target).copy(), dtype=torch.int64)
 
-        # if self.image_transforms is not None:
-        #     # resize, from PIL to tensor, and mean and std normalization
-        #     img = self.image_transforms(img)
+        choice_sent = np.random.choice(len(self.input_ids[index]))
+        tensor_embeddings = self.input_ids[index][choice_sent]
+        attention_mask = self.attention_masks[index][choice_sent]
 
-        # if self.target_transforms is not None:
-        #     target = self.target_transforms(target)
-
-        if self.eval_mode:
-            embedding = []
-            att = []
-            for s in range(len(self.input_ids[index])):
-                e = self.input_ids[index][s]
-                a = self.attention_masks[index][s]
-                embedding.append(e.unsqueeze(-1))
-                att.append(a.unsqueeze(-1))
-
-            tensor_embeddings = torch.cat(embedding, dim=-1)
-            attention_mask = torch.cat(att, dim=-1)
-        else:
-            choice_sent = np.random.choice(len(self.input_ids[index]))
-            tensor_embeddings = self.input_ids[index][choice_sent]
-            attention_mask = self.attention_masks[index][choice_sent]
-
-
-        dinov2 = DINOv2()
-        to_pil = transforms.ToPILImage()
-        img_pil = to_pil(img)
-        inputs = dinov2.process_image(img_pil)
-        dino_token = dinov2.get_tokens(inputs)
+        img_pil = transforms.ToPILImage()(img)
+        inputs = self.dinov2.process_image(img_pil)
+        dino_token = self.dinov2.get_tokens(inputs)
 
         return dino_token, target, tensor_embeddings, attention_mask, img

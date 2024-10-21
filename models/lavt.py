@@ -26,15 +26,10 @@ class Lavt(nn.Module):
             norm_layer(num) for num in self.num_features
         ])
 
-        self.patch_embed = PatchEmbed()
-
-        # self.layers = nn.ModuleList([
-        #     LavtLayer(c.layer_configs, args, int(c.token_size * 2 ** i), depths[i], c.num_heads[i],
-        #               dpr[sum(depths[:i]):sum(depths[:i + 1])], Downsample if (i < self.num_layers - 1) else None,
-        #               c.num_heads_fusion[i], self.norm_layer) for i in range(self.num_layers)])
+        # self.patch_embed = PatchEmbed()
 
     def forward(self, x, l, l_mask, img):
-        x = self.patch_embed(img)
+        # x = self.patch_embed(img)
         Wh, Ww = x.size(2), x.size(3)
         x = x.flatten(2).transpose(1, 2)
         x = self.pos_drop(x)
