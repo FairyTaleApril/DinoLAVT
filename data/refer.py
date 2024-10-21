@@ -40,14 +40,16 @@ from utils.args_parser import get_args_parser
 
 
 class REFER:
-    def __init__(self, ref_root, img_dir, dataset='refcoco+', splitBy='unc'):
+    def __init__(self, ref_root, img_dir, dataset='refcoco+', splitBy='unc', max_image_num=None):
         # Provide data_root folder which contains refclef, refcoco, refcoco+ and refcocog,
         # also provide dataset name and splitBy information
         # e.g., dataset = 'refcoco', splitBy = 'unc'
-        print('loading dataset %s into memory...' % dataset)
+        print('Loading dataset %s into memory...' % dataset)
         self.DATA_DIR = osp.join(ref_root, dataset)
         self.IMAGE_DIR = img_dir
         self.data = {}
+        self.kept_image_ids = []
+        self.kept_ref = []
 
         self.Refs = {}
         self.Anns = {}
@@ -78,11 +80,13 @@ class REFER:
         self.data['categories'] = instances['categories']
 
         # Create index
-        self.createIndex()
-        print('DONE (t=%.2fs)' % (time.time() - tic))
+        if max_image_num is not None:
+            max_image_num = min(max_image_num, len(self.data['refs']))
+        self.createIndex(max_image_num)
+        print('Data loaded (t = %.2fs)' % (time.time() - tic))
 
-    def createIndex(self):
-        # create sets of mapping
+    def createIndex(self, max_image_num):
+        # Create sets of mapping
         # 1)  Refs: 	 	{ref_id: ref}
         # 2)  Anns: 	 	{ann_id: ann}
         # 3)  Imgs:		 	{image_id: image}
@@ -96,31 +100,46 @@ class REFER:
         # 11) sentToRef: 	{sent_id: ref}
         # 12) sentToTokens: {sent_id: tokens}
         print('Creating index...')
-        # fetch info from instances
-        for ann in self.data['annotations']:
-            self.Anns[ann['id']] = ann
-            self.imgToAnns[ann['image_id']] = self.imgToAnns.get(ann['image_id'], []) + [ann]
-        for img in self.data['images']:
-            self.Imgs[img['id']] = img
-        for cat in self.data['categories']:
-            self.Cats[cat['id']] = cat['name']
 
-        # fetch info from refs
         for ref in self.data['refs']:
-            # add mapping related to ref
+            image_id = ref['image_id']
+            if image_id not in self.kept_image_ids:
+                if len(self.kept_image_ids) == max_image_num:
+                    break
+                self.kept_image_ids.append(image_id)
+
+        for ref in self.data['refs']:
+            if ref['image_id'] in self.kept_image_ids:
+                self.kept_ref.append(ref)
+
+        # Fetch info from refs
+        for ref in self.kept_ref:
             self.Refs[ref['ref_id']] = ref
             self.imgToRefs[ref['image_id']] = self.imgToRefs.get(ref['image_id'], []) + [ref]
             self.catToRefs[ref['category_id']] = self.catToRefs.get(ref['category_id'], []) + [ref]
-            self.refToAnn[ref['ref_id']] = self.Anns[ref['ann_id']]
             self.annToRef[ref['ann_id']] = ref
 
-            # add mapping of sent
             for sent in ref['sentences']:
                 self.Sents[sent['sent_id']] = sent
                 self.sentToRef[sent['sent_id']] = ref
                 self.sentToTokens[sent['sent_id']] = sent['tokens']
 
-        print('index created.')
+        # Fetch info from instances
+        for ann in self.data['annotations']:
+            if ann['id'] in self.annToRef:
+                self.Anns[ann['id']] = ann
+                self.imgToAnns[ann['image_id']] = self.imgToAnns.get(ann['image_id'], []) + [ann]
+        for img in self.data['images']:
+            if img['id'] in self.imgToRefs:
+                self.Imgs[img['id']] = img
+        for cat in self.data['categories']:
+            if cat['id'] in self.catToRefs:
+                self.Cats[cat['id']] = cat['name']
+
+        for ref in self.kept_ref:
+            self.refToAnn[ref['ref_id']] = self.Anns[ref['ann_id']]
+
+        print('Index created.')
 
     def getRefIds(self, image_ids=None, cat_ids=None, ref_ids=None, split=''):
         image_ids = [] if image_ids is None else image_ids
@@ -132,21 +151,21 @@ class REFER:
         ref_ids = ref_ids if type(ref_ids) == list else [ref_ids]
 
         if len(image_ids) == len(cat_ids) == len(ref_ids) == len(split) == 0:
-            refs = self.data['refs']
+            refs = self.kept_ref
         else:
             if not len(image_ids) == 0:
                 refs = [self.imgToRefs[image_id] for image_id in image_ids]
             else:
-                refs = self.data['refs']
+                refs = self.kept_ref
             if not len(cat_ids) == 0:
                 refs = [ref for ref in refs if ref['category_id'] in cat_ids]
             if not len(ref_ids) == 0:
                 refs = [ref for ref in refs if ref['ref_id'] in ref_ids]
             if not len(split) == 0:
                 if split in ['testA', 'testB', 'testC']:
-                    refs = [ref for ref in refs if split[-1] in ref['split']]  # we also consider testAB, testBC, ...
+                    refs = [ref for ref in refs if split[-1] in ref['split']]  # We also consider testAB, testBC, ...
                 elif split in ['testAB', 'testBC', 'testAC']:
-                    refs = [ref for ref in refs if ref['split'] == split]  # rarely used I guess...
+                    refs = [ref for ref in refs if ref['split'] == split]  # Rarely used I guess...
                 elif split == 'test':
                     refs = [ref for ref in refs if 'test' in ref['split']]
                 elif split == 'train' or split == 'val':
@@ -156,31 +175,6 @@ class REFER:
                     sys.exit()
         ref_ids = [ref['ref_id'] for ref in refs]
         return ref_ids
-
-    def getAnnIds(self, image_ids=None, cat_ids=None, ref_ids=None):
-        image_ids = [] if image_ids is None else image_ids
-        cat_ids = [] if cat_ids is None else cat_ids
-        ref_ids = [] if ref_ids is None else ref_ids
-
-        image_ids = image_ids if type(image_ids) == list else [image_ids]
-        cat_ids = cat_ids if type(cat_ids) == list else [cat_ids]
-        ref_ids = ref_ids if type(ref_ids) == list else [ref_ids]
-
-        if len(image_ids) == len(cat_ids) == len(ref_ids) == 0:
-            ann_ids = [ann['id'] for ann in self.data['annotations']]
-        else:
-            if not len(image_ids) == 0:
-                lists = [self.imgToAnns[image_id] for image_id in image_ids if
-                         image_id in self.imgToAnns]  # list of [anns]
-                anns = list(itertools.chain.from_iterable(lists))
-            else:
-                anns = self.data['annotations']
-            if not len(cat_ids) == 0:
-                anns = [ann for ann in anns if ann['category_id'] in cat_ids]
-            ann_ids = [ann['id'] for ann in anns]
-            if not len(ref_ids) == 0:
-                ids = set(ann_ids).intersection(set([self.Refs[ref_id]['ann_id'] for ref_id in ref_ids]))
-        return ann_ids
 
     def getImgIds(self, ref_ids=None):
         ref_ids = [] if ref_ids is None else ref_ids
@@ -258,7 +252,7 @@ class REFER:
                 p = PatchCollection(polygons, facecolors=color, edgecolors=(1, 0, 0, 0), linewidths=1, alpha=1)
                 ax.add_collection(p)  # thin red polygon
             else:
-                # Mask used for reflect
+                # Mask used for refclef
                 rle = ann['segmentation']
                 m = mask.decode(rle)
                 img = np.ones((m.shape[0], m.shape[1], 3))
@@ -297,15 +291,13 @@ class REFER:
 
 def main():
     args = get_args_parser()
-    refer = REFER(ref_root='', img_dir=args.img_dir, splitBy='unc')
+    refer = REFER(ref_root='', img_dir=args.img_dir, splitBy='unc', max_data_size=5)
 
     ref_ids = refer.getRefIds(split='train')
     print('There are %s training referred objects.' % len(ref_ids))
 
     for ref_id in ref_ids:
         ref = refer.loadRefs(ref_id)[0]
-        if len(ref['sentences']) < 2:
-            continue
         print('The label is %s.' % refer.Cats[ref['category_id']])
         plt.figure()
         refer.showRef(ref, seg_box='box')

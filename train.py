@@ -4,7 +4,7 @@ import time
 import gc
 import torch
 import torch.nn as nn
-# from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 import torch.utils.data as data
 from torchvision import transforms
 from tqdm import tqdm
@@ -55,6 +55,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
         attentions = attentions.squeeze(1)
 
         bert_model = BertModel.from_pretrained('bert-base-uncased')
+        bert_model.to(device)
         last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
         embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
         attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
@@ -103,9 +104,9 @@ def main():
         train_ds,
         batch_size=args.batch_size,
         shuffle=args.drop_shuffle,
-        drop_last=args.drop_shuffle)
-    # pin_memory=args.pin_mem,
-    # num_workers=int(args.num_workers))
+        drop_last=args.drop_shuffle,
+        pin_memory=args.pin_mem,
+        num_workers=int(args.num_workers))
 
     model = Lavt(args)
     model.to(device)
@@ -115,9 +116,9 @@ def main():
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
-    # tb_writer = None
-    # if args.tb_dir is not None:
-    #     tb_writer = SummaryWriter(log_dir=args.tb_dir)
+    tb_writer = None
+    if args.tb_dir is not None:
+        tb_writer = SummaryWriter(log_dir=args.tb_dir)
 
     # training
     info(f"Start training for {args.epochs} epochs")
@@ -128,8 +129,8 @@ def main():
         train_info = train_one_epoch(model, criterion, optimizer, train_dl, device)
         info(f'Train info:')
         for k, v in train_info.items():
-            # if tb_writer is not None:
-            #     tb_writer.add_scalar(k, v, epoch)
+            if tb_writer is not None:
+                tb_writer.add_scalar(k, v, epoch)
             info(f'{k}: {v}')
 
         if epoch % args.save_freq == 0 or epoch == args.epochs:
@@ -139,9 +140,9 @@ def main():
             info(f'Save the model to {path}')
             model.to(device)
 
-    # if tb_writer is not None:
-    #     tb_writer.flush()
-    #     tb_writer.close()
+    if tb_writer is not None:
+        tb_writer.flush()
+        tb_writer.close()
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     info(f'Training time {total_time_str}')
