@@ -3,6 +3,8 @@ import os
 import numpy as np
 import torch
 import torch.utils.data as data
+from torchvision import transforms
+from torchvision.transforms import functional as F
 from PIL import Image
 from transformers import BertTokenizer
 
@@ -19,6 +21,8 @@ class MyDataset(data.Dataset):
         self.refer = REFER(args.data_dir, args.img_dir, args.dataset, args.splitBy, args.max_image_num)
 
         self.max_tokens = 20
+
+        self.img_size = args.img_size
 
         ref_ids = self.refer.getRefIds(split=self.split)
         img_ids = self.refer.getImgIds(ref_ids)
@@ -78,13 +82,18 @@ class MyDataset(data.Dataset):
         annot = np.zeros(ref_mask.shape)
         annot[ref_mask == 1] = 1
 
-        annot = Image.fromarray(annot.astype(np.uint8), mode="P")
-        target = np.array(annot)
+        target = Image.fromarray(annot.astype(np.uint8), mode="P")
+
+        img = F.resize(img, (self.img_size, self.img_size))
+        img = F.to_tensor(img)
+        img = F.normalize(img, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        target = F.resize(target, (self.img_size, self.img_size), interpolation=Image.NEAREST)
+        target = torch.as_tensor(np.asarray(target).copy(), dtype=torch.int64)
 
         # if self.image_transforms is not None:
         #     # resize, from PIL to tensor, and mean and std normalization
         #     img = self.image_transforms(img)
-        #
+
         # if self.target_transforms is not None:
         #     target = self.target_transforms(target)
 
@@ -104,14 +113,11 @@ class MyDataset(data.Dataset):
             tensor_embeddings = self.input_ids[index][choice_sent]
             attention_mask = self.attention_masks[index][choice_sent]
 
-        dinov2 = DINOv2()
-        inputs = dinov2.process_image(img)
-        dino_token = dinov2.get_tokens(inputs)
-        if self.image_transforms is not None:
-            img = self.image_transforms(img)
 
-        if self.target_transforms is not None:
-            # target = self.target_transforms(target)
-            target = torch.as_tensor(target, dtype=torch.int64)
+        dinov2 = DINOv2()
+        to_pil = transforms.ToPILImage()
+        img_pil = to_pil(img)
+        inputs = dinov2.process_image(img_pil)
+        dino_token = dinov2.get_tokens(inputs)
 
         return dino_token, target, tensor_embeddings, attention_mask, img
