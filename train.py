@@ -84,6 +84,8 @@ def main():
 
     Logger(args)
 
+    os.makedirs(args.ckpt_output_dir, exist_ok=True)
+
     device = args.device
 
     info('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))

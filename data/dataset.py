@@ -18,7 +18,7 @@ class MyDataset(data.Dataset):
         self.image_transforms = image_transforms
         self.target_transforms = target_transforms
         self.split = split
-        self.refer = REFER(args.data_dir, args.img_dir, args.dataset, args.splitBy)
+        self.refer = REFER(args.data_dir, args.img_dir, args.dataset, args.splitBy, args.max_image_num)
 
         self.max_tokens = 20
 
