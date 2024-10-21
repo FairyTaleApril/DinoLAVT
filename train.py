@@ -55,6 +55,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
         attentions = attentions.squeeze(1)
 
         bert_model = BertModel.from_pretrained('bert-base-uncased')
+        bert_model.to(device)
         last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
         embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
         attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
@@ -83,6 +84,8 @@ def main():
 
     Logger(args)
 
+    os.makedirs(args.ckpt_output_dir, exist_ok=True)
+
     device = args.device
 
     info('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
@@ -104,7 +107,7 @@ def main():
         batch_size=args.batch_size,
         shuffle=args.drop_shuffle,
         drop_last=args.drop_shuffle)
-    # pin_memory=args.pin_mem,
+        # pin_memory=args.pin_mem)
     # num_workers=int(args.num_workers))
 
     model = Lavt(args)
