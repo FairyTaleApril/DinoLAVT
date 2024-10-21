@@ -1,27 +1,24 @@
 import datetime
+import gc
 import os
 import time
-import gc
+import warnings
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.tensorboard import SummaryWriter
 import torch.utils.data as data
+from PIL import Image
+from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from tqdm import tqdm
-import warnings
-from datasets import load_dataset
-from transformers import GPT2Tokenizer, BertModel
-import numpy as np
-from pycocotools import mask
-from PIL import Image
+from transformers import BertModel
 
-from utils.args_parser import get_args_parser
-from utils.logger import info, Logger, error
 import utils.util as util
-from models.lavt import Lavt
-
 from data.dataset import MyDataset
-from data.dataset_hug import RefCOCOPlusDataset
+from models.lavt import Lavt
+from utils.args_parser import get_args_parser
+from utils.logger import info, Logger
 
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -41,7 +38,7 @@ def test(model, bert_model, data_loader, device):
     model.eval()
 
     for i, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
-        token, target, sentences, attentions, img = data
+        img, token, target, sentences, attentions = data
 
         numpy_img = img.cpu()[0].permute(1, 2, 0).numpy()
         numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
@@ -87,7 +84,7 @@ def train_one_epoch(model, bert_model, crit, optimizer, data_loader: data.DataLo
     loss = 0.0
     i = 0
     for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Training LAVT..."):
-        token, target, sentences, attentions, img = data
+        img, token, target, sentences, attentions = data
 
         token = token.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
@@ -120,6 +117,7 @@ def train_one_epoch(model, bert_model, crit, optimizer, data_loader: data.DataLo
 def main():
     args = get_args_parser()
     os.makedirs(args.ckpt_output_dir, exist_ok=True)
+    os.makedirs(args.img_output_dir, exist_ok=True)
     device = args.device
 
     Logger(args)

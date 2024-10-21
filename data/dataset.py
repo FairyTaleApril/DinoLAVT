@@ -82,6 +82,10 @@ class MyDataset(data.Dataset):
         img = F.to_tensor(img)
         img = F.normalize(img, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
+        img_pil = transforms.ToPILImage()(img)
+        inputs = self.dinov2.process_image(img_pil)
+        dino_token = self.dinov2.get_tokens(inputs)
+
         target = Image.fromarray(annot.astype(np.uint8), mode="P")
         target = F.resize(target, [self.img_size, self.img_size], interpolation=Image.NEAREST)
         target = torch.as_tensor(np.asarray(target).copy(), dtype=torch.int64)
@@ -90,8 +94,4 @@ class MyDataset(data.Dataset):
         tensor_embeddings = self.input_ids[index][choice_sent]
         attention_mask = self.attention_masks[index][choice_sent]
 
-        img_pil = transforms.ToPILImage()(img)
-        inputs = self.dinov2.process_image(img_pil)
-        dino_token = self.dinov2.get_tokens(inputs)
-
-        return dino_token, target, tensor_embeddings, attention_mask, img
+        return img, dino_token, target, tensor_embeddings, attention_mask
