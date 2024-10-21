@@ -13,20 +13,21 @@ def get_args_parser():
     parser.add_argument('--device', default='cuda', help='device to use for training / testing')
 
     # Dataset parameters
-    parser.add_argument('--max_image_num', default=1, type=int, help='number of images for training')
+    parser.add_argument('--max_image_num', default=1000, type=int, help='number of images for training')
     parser.add_argument('--data_dir', default='data', type=str, help='directory of dataset')
-    parser.add_argument('--img_dir', default=r'E:\ANU\train2014\train2014', type=str, help='directory of images')
+    parser.add_argument('--img_dir', default='data/train2014', type=str, help='directory of images')
+    parser.add_argument('--img_size', default=480, type=int, help='input image size')
     parser.add_argument('--dataset', default='refcoco+', help='refcoco, refcoco+, or refcocog')
     parser.add_argument('--splitBy', default='unc', help='change to umd or google when the dataset is G-Ref (RefCOCOg)')
     parser.add_argument('--num_workers', default=8, type=int)
     parser.add_argument('--pin_mem', action='store_true', default=True,
                         help='pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU')
-    # parser.set_defaults(pin_mem=True)
-    # parser.add_argument('--no_pin_mem', action='store_false', dest='pin_mem')
+    parser.set_defaults(pin_mem=True)
+    parser.add_argument('--no_pin_mem', action='store_false', dest='pin_mem')
     parser.add_argument('--drop_shuffle', action='store_true', default=True,
                         help='drop last and shuffle in training DataLoader')
-    # parser.set_defaults(drop_shuffle=True)
-    # parser.add_argument('--no_drop_shuffle', action='store_false', dest='drop_shuffle')
+    parser.set_defaults(drop_shuffle=True)
+    parser.add_argument('--no_drop_shuffle', action='store_false', dest='drop_shuffle')
 
     # Model parameters
     parser.add_argument('--model', default='lavt_base', type=str, metavar='MODEL', help='Name of model to train')
