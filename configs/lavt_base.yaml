@@ -5,8 +5,7 @@ num_heads: [3,6,12,24]
 drop_rate: 0.0
 drop_path_rate: 0.2
 num_heads_fusion: [1,1,1,1]
-layer_configs:
-  mlp_ratio: 4.0
-  proj_drop: 0.0
-  attn_drop: 0.0
-  fusion_drop: 0.0
+mlp_ratio: 4.0
+proj_drop: 0.0
+attn_drop: 0.0
+fusion_drop: 0.0

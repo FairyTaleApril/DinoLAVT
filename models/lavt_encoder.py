@@ -28,8 +28,8 @@ class LAVTEncoder(nn.Module):
         # apply a gate on the residual
         x = self.lang_gate(x, x_residual)
 
-        if self.downsample is not None:
-            x_down = self.downsample(x, H, W)
+        if self.down_sample is not None:
+            x_down = self.down_sample(x, H, W)
             Wh, Ww = (H + 1) // 2, (W + 1) // 2
             return x_residual, H, W, x_down, Wh, Ww
         else:

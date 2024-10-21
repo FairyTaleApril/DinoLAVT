@@ -28,17 +28,15 @@ def criterion(input, target, device):
 
 
 def get_dataset(image_set, image_transform, target_transforms, args):
-    ds = MyDataset(args,
-                   split=image_set,
-                   image_transforms=image_transform,
-                   target_transforms=target_transforms
-                   )
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-    tokenizer.pad_token = tokenizer.eos_token
-    dataset = load_dataset("lmms-lab/RefCOCOplus", split='val')
-    ds = RefCOCOPlusDataset(dataset, tokenizer, image_transforms=image_transform)
+    ds = MyDataset(args, split=image_set, image_transforms=image_transform, target_transforms=target_transforms)
+
+    # tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+    # tokenizer.pad_token = tokenizer.eos_token
+    # dataset = load_dataset("lmms-lab/RefCOCOplus", split='val')
+    # ds = RefCOCOPlusDataset(dataset, tokenizer, image_transforms=image_transform)
 
     return ds
+
 
 def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
                     device):
@@ -47,9 +45,9 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
     loss = 0.0
     i = 0
     for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Training LAVT..."):
-        image, target, sentences, attentions = data
+        token, target, sentences, attentions, img = data
 
-        image = image.to(device, non_blocking=True)
+        token = token.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
         sentences = sentences.to(device, non_blocking=True)
         attentions = attentions.to(device, non_blocking=True)
@@ -61,7 +59,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
         embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
         attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-        output = model(image, embedding, l_mask=attentions)
+        output = model(token, embedding, attentions, img)
 
         loss = criterion(output, target, device)
         optimizer.zero_grad()
@@ -77,12 +75,14 @@ def train_one_epoch(model, criterion, optimizer, data_loader: data.DataLoader,
     return {'train_loss': loss / i}
 
 
-def main(args):
+def main():
+    args = get_args_parser()
+
     util.seed_everything(args.seed)
+    util.print_gpu_info()
 
     Logger(args)
 
-    util.print_gpu_info()
     device = args.device
 
     info('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
@@ -96,7 +96,7 @@ def main(args):
     target_transforms = transforms.Compose([
         transforms.ToTensor()
     ])
-    train_ds = get_dataset("train", image_transform=None, target_transforms=target_transforms, args=args)
+    train_ds = get_dataset("train", image_transform=image_transform, target_transforms=target_transforms, args=args)
     # dataset_test = get_dataset("val", transform=transform, args=args)
 
     train_dl = data.DataLoader(
@@ -104,8 +104,8 @@ def main(args):
         batch_size=args.batch_size,
         shuffle=args.drop_shuffle,
         drop_last=args.drop_shuffle)
-        # pin_memory=args.pin_mem,
-        # num_workers=int(args.num_workers))
+    # pin_memory=args.pin_mem,
+    # num_workers=int(args.num_workers))
 
     model = Lavt(args)
     model.to(device)
@@ -115,7 +115,7 @@ def main(args):
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
-    tb_writer = None
+    # tb_writer = None
     # if args.tb_dir is not None:
     #     tb_writer = SummaryWriter(log_dir=args.tb_dir)
 
@@ -148,6 +148,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args = get_args_parser()
-
-    main(args)
+    main()

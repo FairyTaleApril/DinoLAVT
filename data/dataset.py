@@ -16,7 +16,7 @@ class MyDataset(data.Dataset):
         self.image_transforms = image_transforms
         self.target_transforms = target_transforms
         self.split = split
-        self.refer = REFER(args.data_dir, args.dataset, args.splitBy)
+        self.refer = REFER(args.data_dir, args.img_dir, args.dataset, args.splitBy)
 
         self.max_tokens = 20
 
@@ -79,7 +79,7 @@ class MyDataset(data.Dataset):
         annot[ref_mask == 1] = 1
 
         annot = Image.fromarray(annot.astype(np.uint8), mode="P")
-        target = annot
+        target = np.array(annot)
 
         # if self.image_transforms is not None:
         #     # resize, from PIL to tensor, and mean and std normalization
@@ -107,8 +107,11 @@ class MyDataset(data.Dataset):
         dinov2 = DINOv2()
         inputs = dinov2.process_image(img)
         dino_token = dinov2.get_tokens(inputs)
+        if self.image_transforms is not None:
+            img = self.image_transforms(img)
 
         if self.target_transforms is not None:
-            target = self.target_transforms(target)
+            # target = self.target_transforms(target)
+            target = torch.as_tensor(target, dtype=torch.int64)
 
-        return dino_token, target, tensor_embeddings, attention_mask
+        return dino_token, target, tensor_embeddings, attention_mask, img

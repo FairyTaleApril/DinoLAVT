@@ -2,6 +2,7 @@ import datetime
 import threading
 import os
 
+
 class Logger:
     _instance = None
     _lock = threading.Lock()
@@ -32,7 +33,7 @@ class Logger:
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         log_message = f"{timestamp} - {level} - {message}"
 
-        self.log_file.write(log_message+'\n') if self.log_file else print(log_message)
+        self.log_file.write(log_message + '\n') if self.log_file else print(log_message)
 
     def info(self, message):
         self._log("INFO", message)
@@ -46,17 +47,21 @@ class Logger:
     def debug(self, message):
         self._log("DEBUG", message)
 
+
 def info(message):
     logger = Logger()
     logger.info(message)
+
 
 def warning(message):
     logger = Logger()
     logger.warning(message)
 
+
 def error(message):
     logger = Logger()
     logger.error(message)
+
 
 def debug(message):
     logger = Logger()

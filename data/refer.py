@@ -22,55 +22,62 @@ getMask    - get mask and area of the referred object given ref
 showMask   - show mask of the referred object given ref
 """
 
-import sys
-import os.path as osp
-import json
-import pickle as pickle
-import time
 import itertools
-import skimage.io as io
+import json
+import os.path as osp
+import pickle as pickle
+import sys
+import time
+
 import matplotlib.pyplot as plt
+import numpy as np
+import skimage.io as io
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon, Rectangle
-import numpy as np
 from pycocotools import mask
+
+from utils.args_parser import get_args_parser
 
 
 class REFER:
-    def __init__(self, data_root, dataset='refcoco', splitBy='unc'):
-        # provide data_root folder which contains refclef, refcoco, refcoco+ and refcocog
+    def __init__(self, ref_root, img_dir, dataset='refcoco+', splitBy='unc'):
+        # Provide data_root folder which contains refclef, refcoco, refcoco+ and refcocog,
         # also provide dataset name and splitBy information
         # e.g., dataset = 'refcoco', splitBy = 'unc'
         print('loading dataset %s into memory...' % dataset)
-        if dataset == 'refcocog':
-            print('Split by {}!'.format(splitBy))
-        self.ROOT_DIR = osp.abspath(osp.dirname(__file__))
-        self.DATA_DIR = osp.join(data_root, dataset)
-        if dataset in ['refcoco', 'refcoco+', 'refcocog']:
-            self.IMAGE_DIR = osp.join(data_root, 'images/mscoco/images/train2014')
-        elif dataset == 'refclef':
-            self.IMAGE_DIR = osp.join(data_root, 'images/saiapr_tc-12')
-        else:
-            print('No refer dataset is called [%s]' % dataset)
-            sys.exit()
-
-        # load refs from data/dataset/refs(dataset).json
-        tic = time.time()
-        ref_file = osp.join(self.DATA_DIR, 'refs(' + splitBy + ').p')
-        # ref_file = 'data/refcoco+/refcoco+/refs(unc).p'
+        self.DATA_DIR = osp.join(ref_root, dataset)
+        self.IMAGE_DIR = img_dir
         self.data = {}
-        self.data['dataset'] = dataset
-        f = open(ref_file, 'r')
-        self.data['refs'] = pickle.load(open(ref_file, 'rb'))
 
-        # load annotations from data/dataset/instances.json
-        instances_file = osp.join(self.DATA_DIR, 'instances.json')
-        instances = json.load(open(instances_file, 'r'))
+        self.Refs = {}
+        self.Anns = {}
+        self.Imgs = {}
+        self.Cats = {}
+        self.Sents = {}
+        self.imgToRefs = {}
+        self.imgToAnns = {}
+        self.refToAnn = {}
+        self.annToRef = {}
+        self.catToRefs = {}
+        self.sentToRef = {}
+        self.sentToTokens = {}
+
+        tic = time.time()
+
+        # Load refs from data/dataset/refs(splitBy).p
+        ref_file_path = osp.join(self.DATA_DIR, 'refs(' + splitBy + ').p')
+        refs = pickle.load(open(ref_file_path, 'rb'))
+        self.data['dataset'] = dataset
+        self.data['refs'] = refs
+
+        # Load annotations from data/dataset/instances.json
+        instances_path = osp.join(self.DATA_DIR, 'instances.json')
+        instances = json.load(open(instances_path, 'r'))
         self.data['images'] = instances['images']
         self.data['annotations'] = instances['annotations']
         self.data['categories'] = instances['categories']
 
-        # create index
+        # Create index
         self.createIndex()
         print('DONE (t=%.2fs)' % (time.time() - tic))
 
@@ -88,56 +95,38 @@ class REFER:
         # 10) catToRefs: 	{category_id: refs}
         # 11) sentToRef: 	{sent_id: ref}
         # 12) sentToTokens: {sent_id: tokens}
-        print('creating index...')
+        print('Creating index...')
         # fetch info from instances
-        Anns, Imgs, Cats, imgToAnns = {}, {}, {}, {}
         for ann in self.data['annotations']:
-            Anns[ann['id']] = ann
-            imgToAnns[ann['image_id']] = imgToAnns.get(ann['image_id'], []) + [ann]
+            self.Anns[ann['id']] = ann
+            self.imgToAnns[ann['image_id']] = self.imgToAnns.get(ann['image_id'], []) + [ann]
         for img in self.data['images']:
-            Imgs[img['id']] = img
+            self.Imgs[img['id']] = img
         for cat in self.data['categories']:
-            Cats[cat['id']] = cat['name']
+            self.Cats[cat['id']] = cat['name']
 
         # fetch info from refs
-        Refs, imgToRefs, refToAnn, annToRef, catToRefs = {}, {}, {}, {}, {}
-        Sents, sentToRef, sentToTokens = {}, {}, {}
         for ref in self.data['refs']:
-            # ids
-            ref_id = ref['ref_id']
-            ann_id = ref['ann_id']
-            category_id = ref['category_id']
-            image_id = ref['image_id']
-
             # add mapping related to ref
-            Refs[ref_id] = ref
-            imgToRefs[image_id] = imgToRefs.get(image_id, []) + [ref]
-            catToRefs[category_id] = catToRefs.get(category_id, []) + [ref]
-            refToAnn[ref_id] = Anns[ann_id]
-            annToRef[ann_id] = ref
+            self.Refs[ref['ref_id']] = ref
+            self.imgToRefs[ref['image_id']] = self.imgToRefs.get(ref['image_id'], []) + [ref]
+            self.catToRefs[ref['category_id']] = self.catToRefs.get(ref['category_id'], []) + [ref]
+            self.refToAnn[ref['ref_id']] = self.Anns[ref['ann_id']]
+            self.annToRef[ref['ann_id']] = ref
 
             # add mapping of sent
             for sent in ref['sentences']:
-                Sents[sent['sent_id']] = sent
-                sentToRef[sent['sent_id']] = ref
-                sentToTokens[sent['sent_id']] = sent['tokens']
+                self.Sents[sent['sent_id']] = sent
+                self.sentToRef[sent['sent_id']] = ref
+                self.sentToTokens[sent['sent_id']] = sent['tokens']
 
-        # create class members
-        self.Refs = Refs
-        self.Anns = Anns
-        self.Imgs = Imgs
-        self.Cats = Cats
-        self.Sents = Sents
-        self.imgToRefs = imgToRefs
-        self.imgToAnns = imgToAnns
-        self.refToAnn = refToAnn
-        self.annToRef = annToRef
-        self.catToRefs = catToRefs
-        self.sentToRef = sentToRef
-        self.sentToTokens = sentToTokens
         print('index created.')
 
-    def getRefIds(self, image_ids=[], cat_ids=[], ref_ids=[], split=''):
+    def getRefIds(self, image_ids=None, cat_ids=None, ref_ids=None, split=''):
+        image_ids = [] if image_ids is None else image_ids
+        cat_ids = [] if cat_ids is None else cat_ids
+        ref_ids = [] if ref_ids is None else ref_ids
+
         image_ids = image_ids if type(image_ids) == list else [image_ids]
         cat_ids = cat_ids if type(cat_ids) == list else [cat_ids]
         ref_ids = ref_ids if type(ref_ids) == list else [ref_ids]
@@ -168,7 +157,11 @@ class REFER:
         ref_ids = [ref['ref_id'] for ref in refs]
         return ref_ids
 
-    def getAnnIds(self, image_ids=[], cat_ids=[], ref_ids=[]):
+    def getAnnIds(self, image_ids=None, cat_ids=None, ref_ids=None):
+        image_ids = [] if image_ids is None else image_ids
+        cat_ids = [] if cat_ids is None else cat_ids
+        ref_ids = [] if ref_ids is None else ref_ids
+
         image_ids = image_ids if type(image_ids) == list else [image_ids]
         cat_ids = cat_ids if type(cat_ids) == list else [cat_ids]
         ref_ids = ref_ids if type(ref_ids) == list else [ref_ids]
@@ -189,7 +182,8 @@ class REFER:
                 ids = set(ann_ids).intersection(set([self.Refs[ref_id]['ann_id'] for ref_id in ref_ids]))
         return ann_ids
 
-    def getImgIds(self, ref_ids=[]):
+    def getImgIds(self, ref_ids=None):
+        ref_ids = [] if ref_ids is None else ref_ids
         ref_ids = ref_ids if type(ref_ids) == list else [ref_ids]
 
         if not len(ref_ids) == 0:
@@ -201,63 +195,70 @@ class REFER:
     def getCatIds(self):
         return self.Cats.keys()
 
-    def loadRefs(self, ref_ids=[]):
+    def loadRefs(self, ref_ids=None):
+        ref_ids = [] if ref_ids is None else ref_ids
+
         if type(ref_ids) == list:
             return [self.Refs[ref_id] for ref_id in ref_ids]
         elif type(ref_ids) == int:
             return [self.Refs[ref_ids]]
 
-    def loadAnns(self, ann_ids=[]):
+    def loadAnns(self, ann_ids=None):
+        ann_ids = [] if ann_ids is None else ann_ids
+
         if type(ann_ids) == list:
             return [self.Anns[ann_id] for ann_id in ann_ids]
         elif type(ann_ids) == int or type(ann_ids) == str:
             return [self.Anns[ann_ids]]
 
-    def loadImgs(self, image_ids=[]):
+    def loadImgs(self, image_ids=None):
+        image_ids = [] if image_ids is None else image_ids
+
         if type(image_ids) == list:
             return [self.Imgs[image_id] for image_id in image_ids]
         elif type(image_ids) == int:
             return [self.Imgs[image_ids]]
 
-    def loadCats(self, cat_ids=[]):
+    def loadCats(self, cat_ids=None):
+        cat_ids = [] if cat_ids is None else cat_ids
+
         if type(cat_ids) == list:
             return [self.Cats[cat_id] for cat_id in cat_ids]
         elif type(cat_ids) == int:
             return [self.Cats[cat_ids]]
 
     def getRefBox(self, ref_id):
-        ref = self.Refs[ref_id]
         ann = self.refToAnn[ref_id]
         return ann['bbox']  # [x, y, w, h]
 
     def showRef(self, ref, seg_box='seg'):
         ax = plt.gca()
-        # show image
+        # Show image
         image = self.Imgs[ref['image_id']]
         I = io.imread(osp.join(self.IMAGE_DIR, image['file_name']))
         ax.imshow(I)
-        # show refer expression
+
+        # Show refer expression
         for sid, sent in enumerate(ref['sentences']):
             print('%s. %s' % (sid + 1, sent['sent']))
-        # show segmentations
+        # Show segmentations
         if seg_box == 'seg':
-            ann_id = ref['ann_id']
-            ann = self.Anns[ann_id]
+            ann = self.Anns[ref['ann_id']]
             polygons = []
             color = []
             c = 'none'
             if type(ann['segmentation'][0]) == list:
-                # polygon used for refcoco*
+                # Polygon used for refcoco*
                 for seg in ann['segmentation']:
-                    poly = np.array(seg).reshape((len(seg) / 2, 2))
-                    polygons.append(Polygon(poly, True, alpha=0.4))
+                    poly = np.array(seg).reshape((len(seg) // 2, 2))
+                    polygons.append(Polygon(poly, closed=True, alpha=0.4))
                     color.append(c)
                 p = PatchCollection(polygons, facecolors=color, edgecolors=(1, 1, 0, 0), linewidths=3, alpha=1)
                 ax.add_collection(p)  # thick yellow polygon
                 p = PatchCollection(polygons, facecolors=color, edgecolors=(1, 0, 0, 0), linewidths=1, alpha=1)
                 ax.add_collection(p)  # thin red polygon
             else:
-                # mask used for refclef
+                # Mask used for reflect
                 rle = ann['segmentation']
                 m = mask.decode(rle)
                 img = np.ones((m.shape[0], m.shape[1], 3))
@@ -265,16 +266,14 @@ class REFER:
                 for i in range(3):
                     img[:, :, i] = color_mask[i]
                 ax.imshow(np.dstack((img, m * 0.5)))
-        # show bounding-box
+        # Show bounding-box
         elif seg_box == 'box':
-            ann_id = ref['ann_id']
-            ann = self.Anns[ann_id]
             bbox = self.getRefBox(ref['ref_id'])
             box_plot = Rectangle((bbox[0], bbox[1]), bbox[2], bbox[3], fill=False, edgecolor='green', linewidth=3)
             ax.add_patch(box_plot)
 
     def getMask(self, ref):
-        # return mask, area and mask-center
+        # Return mask, area and mask-center
         ann = self.refToAnn[ref['ref_id']]
         image = self.Imgs[ref['image_id']]
 
@@ -284,10 +283,9 @@ class REFER:
             rle = ann['segmentation']
 
         m = mask.decode(rle)
-        m = np.sum(m, axis=2)  # sometimes there are multiple binary map (corresponding to multiple segs)
-        m = m.astype(np.uint8)  # convert to np.uint8
-        # compute area
-        area = sum(mask.area(rle))  # should be close to ann['area']
+        m = np.sum(m, axis=2).astype(np.uint8)  # There are multiple binary maps corresponding to multiple segs
+        # Compute area
+        area = sum(mask.area(rle))  # Should be close to ann['area']
         return {'mask': m, 'area': area}
 
     def showMask(self, ref):
@@ -298,7 +296,8 @@ class REFER:
 
 
 def main():
-    refer = REFER(dataset='refcocog', splitBy='google')
+    args = get_args_parser()
+    refer = REFER(ref_root='', img_dir=args.img_dir, splitBy='unc')
 
     ref_ids = refer.getRefIds(split='train')
     print('There are %s training referred objects.' % len(ref_ids))
@@ -310,6 +309,7 @@ def main():
         print('The label is %s.' % refer.Cats[ref['category_id']])
         plt.figure()
         refer.showRef(ref, seg_box='box')
+        refer.showRef(ref, seg_box='seg')
         plt.show()
 
 

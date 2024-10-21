@@ -72,11 +72,17 @@ class RefCOCOPlusDataset(Dataset):
         rle = mask.frPyObjects(seg, image.height, image.width)
         m = mask.decode(rle)
         m = np.sum(m, axis=2)  # sometimes there are multiple binary map (corresponding to multiple segs)
-        target = m.astype(np.uint8)
+        m = m.astype(np.uint8)
+        annot = np.zeros(m.shape)
+        annot[m == 1] = 1
+        annot = Image.fromarray(annot.astype(np.uint8), mode="P")
+        target = annot
+
         if self.transform is not None:
+            image = self.transform(image)
             target = self.transform(target)
 
-        return dino_token, target, sentence, attentions
+        return dino_token, target, sentence, attentions, image
 
         # return {
         #     'image': image,
