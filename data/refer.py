@@ -291,7 +291,7 @@ class REFER:
 
 def main():
     args = get_args_parser()
-    refer = REFER(ref_root='', img_dir=args.img_dir, splitBy='unc', max_data_size=5)
+    refer = REFER(ref_root='', img_dir=args.img_dir, splitBy='unc', max_image_num=5)
 
     ref_ids = refer.getRefIds(split='train')
     print('There are %s training referred objects.' % len(ref_ids))
