@@ -20,7 +20,7 @@ echo "--- training ---"
 export SINGULARITYENV_CONDAENV="/home/remote/u7619568/.conda/envs/dinolavt/"
 singularity exec --nv --bind /home/projects /opt/apps/containers/conda/conda-nvidia-22.04-latest.sif bash <<EOF
  source /.singularity_bash
- python train.py
+ python train.py --img_dir 'data/train2014'
 EOF
 
 echo "--- done ---"

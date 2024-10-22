@@ -36,3 +36,9 @@ def print_gpu_info():
         info(f"Unreserved Memory: {unreserved_memory / (1024 ** 3):.2f} GB")
     else:
         info("No GPU available.")
+
+def computeIoU(pred_seg, gd_seg):
+    I = np.sum(np.logical_and(pred_seg, gd_seg))
+    U = np.sum(np.logical_or(pred_seg, gd_seg))
+
+    return I, U

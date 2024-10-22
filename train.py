@@ -39,8 +39,10 @@ def test(args, model, bert_model, crit, data_loader, device):
 
     with open(args.print_dir + '/test_loss.txt', 'w') as f:
         loss, num = 0.0, 0
-        for i, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing..."):
-            imgs, tokens, targets, sentences, attentions = next_data
+        cum_I, cum_U = 0.0, 0.0
+        mean_IoU = []
+        for i, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
+            imgs, tokens, targets, sentences, attentions = data
 
             numpy_imgs = imgs.cpu().permute(0, 2, 3, 1).numpy()
             for j in range(len(numpy_imgs)):
@@ -82,10 +84,24 @@ def test(args, model, bert_model, crit, data_loader, device):
                 output_img.save(f'output/img/output_img{i}-{j}.jpg')
                 # output_img.show()
 
+            I, U = util.computeIoU(numpy_outputs, numpy_targets)
+            if U == 0:
+                this_iou = 0.0
+            else:
+                this_iou = I * 1.0 / U
+            mean_IoU.append(this_iou)
+            cum_I += I
+            cum_U += U
+
             gc.collect()
             torch.cuda.empty_cache()
 
         loss = loss / num
+        mean_IoU = np.array(mean_IoU)
+        mIoU = np.mean(mean_IoU)
+        info('Final results:')
+        info(f'Mean IoU is {mIoU * 100.: .2f}')
+        info(f'overall IoU = {cum_I * 100. / cum_U: .2f}')
         f.write(f"Total test loss: {loss}\n")
 
 
