@@ -41,15 +41,15 @@ def test(args, model, bert_model, crit, data_loader, device):
         loss, num = 0.0, 0
         cum_I, cum_U = 0.0, 0.0
         mean_IoU = []
-        for i, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
-            imgs, tokens, targets, sentences, attentions = data
+        for i, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
+            imgs, tokens, targets, sentences, attentions = next_data
 
-            numpy_imgs = imgs.cpu()[0].permute(1, 2, 0).numpy()
+            numpy_imgs = imgs.cpu().permute(0, 2, 3, 1).numpy()
             for j in range(len(numpy_imgs)):
                 numpy_img = numpy_imgs[j]
                 numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
                 ori_img = Image.fromarray(numpy_img)
-                ori_img.save(f'output/img/output_image{i}-{j}.jpg')
+                ori_img.save(f'output/img/ori_img{i}-{j}.jpg')
                 # ori_img.show()
 
             numpy_targets = targets.numpy()
@@ -62,17 +62,15 @@ def test(args, model, bert_model, crit, data_loader, device):
             imgs = imgs.to(device, non_blocking=True)
             tokens = tokens.to(device, non_blocking=True)
             targets = targets.to(device, non_blocking=True)
-            sentences = sentences.to(device, non_blocking=True)
-            attentions = attentions.to(device, non_blocking=True)
-            sentences = sentences.squeeze(1)
-            attentions = attentions.squeeze(1)
+            sentences = sentences.to(device, non_blocking=True).squeeze(1)
+            attentions = attentions.to(device, non_blocking=True).squeeze(1)
 
             last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
-            embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
+            embeddings = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
             attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
             with torch.no_grad():
-                output = model(imgs, tokens, embedding, attentions)
+                output = model(imgs, tokens, embeddings, attentions)
 
             loss = crit(output, targets, device)
             f.write(f"Test {i} loss: {loss}\n")
@@ -87,10 +85,7 @@ def test(args, model, bert_model, crit, data_loader, device):
                 # output_img.show()
 
             I, U = util.computeIoU(numpy_outputs, numpy_targets)
-            if U == 0:
-                this_iou = 0.0
-            else:
-                this_iou = I * 1.0 / U
+            this_iou = 0.0 if U == 0 else I * 1.0 / U
             mean_IoU.append(this_iou)
             cum_I += I
             cum_U += U
@@ -99,54 +94,52 @@ def test(args, model, bert_model, crit, data_loader, device):
             torch.cuda.empty_cache()
 
         loss = loss / num
-        mean_IoU = np.array(mean_IoU)
-        mIoU = np.mean(mean_IoU)
-        info('Final results:')
-        info(f'Mean IoU is {mIoU * 100.: .2f}')
-        info(f'overall IoU = {cum_I * 100. / cum_U: .2f}')
         f.write(f"Total test loss: {loss}\n")
 
+        mIoU = np.mean(np.array(mean_IoU))
+        info(f'Test result: mean IoU = {mIoU * 100.: .2f}')
+        info(f'Test result: overall IoU = {cum_I * 100. / cum_U: .2f}')
+        f.write(f'Mean IoU = {mIoU * 100.: .2f}\n')
+        f.write(f'Overall IoU = {cum_I * 100. / cum_U: .2f}\n')
 
-def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
+
+def train_one_epoch(epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
     model.train()
 
-    with open(args.print_dir + '/train_loss.txt', 'w') as f:
-        loss, num = 0.0, 0
-        for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
-            imgs, tokens, targets, sentences, attentions = data
+    loss, num = 0.0, 0
+    for _, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
+        imgs, tokens, targets, sentences, attentions = data
 
-            imgs = imgs.to(device, non_blocking=True)
-            tokens = tokens.to(device, non_blocking=True)
-            targets = targets.to(device, non_blocking=True)
-            sentences = sentences.to(device, non_blocking=True)
-            attentions = attentions.to(device, non_blocking=True)
-            sentences = sentences.squeeze(1)
-            attentions = attentions.squeeze(1)
+        imgs = imgs.to(device, non_blocking=True)
+        tokens = tokens.to(device, non_blocking=True)
+        targets = targets.to(device, non_blocking=True)
+        sentences = sentences.to(device, non_blocking=True).squeeze(1)
+        attentions = attentions.to(device, non_blocking=True).squeeze(1)
 
-            last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
-            embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
-            attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
+        last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
+        embeddings = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
+        attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-            output = model(imgs, tokens, embedding, attentions)
+        output = model(imgs, tokens, embeddings, attentions)
 
-            loss = crit(output, targets, device)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        loss = crit(output, targets, device)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            loss += loss.item()
-            num += 1
+        loss += loss.item()
+        num += 1
 
-            gc.collect()
-            torch.cuda.empty_cache()
+        gc.collect()
+        torch.cuda.empty_cache()
 
-        loss = loss / num
-        f.write(f"Train {epoch} loss: {loss}\n")
+    loss = loss / num
     return {'train_loss': loss}
 
 
 def main():
     args = get_args_parser()
+    os.makedirs(args.tb_dir, exist_ok=True)
     os.makedirs(args.ckpt_output_dir, exist_ok=True)
     os.makedirs(args.img_output_dir, exist_ok=True)
     os.makedirs(args.print_dir, exist_ok=True)
@@ -178,12 +171,12 @@ def main():
     model = Lavt(args)
     model.to(device)
 
-    bert_model = BertModel.from_pretrained('bert-base-uncased')
-    bert_model.to(device)
-
     if args.ckpt is not None:
         state_dict = torch.load(args.ckpt)
         model.load_state_dict(state_dict)
+
+    bert_model = BertModel.from_pretrained('bert-base-uncased')
+    bert_model.to(device)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
@@ -195,7 +188,7 @@ def main():
     info(f"Start training for {args.epochs} epochs")
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs + 1):
-        train_info = train_one_epoch(args, epoch, model, bert_model, criterion, optimizer, train_dl, device)
+        train_info = train_one_epoch(epoch, model, bert_model, criterion, optimizer, train_dl, device)
         for k, v in train_info.items():
             if tb_writer is not None:
                 tb_writer.add_scalar(k, v, epoch)
@@ -218,5 +211,46 @@ def main():
     test(args, model, bert_model, criterion, train_dl, device)
 
 
+def load_test(pth=None):
+    args = get_args_parser()
+    os.makedirs(args.img_output_dir, exist_ok=True)
+    os.makedirs(args.print_dir, exist_ok=True)
+    device = args.device
+
+    if pth is not None:
+        args.ckpt = pth
+
+    Logger(args)
+    util.seed_everything(args.seed)
+
+    image_transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    target_transforms = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    test_ds = get_dataset(args, "train", image_transform=image_transform, target_transforms=target_transforms)
+
+    test_dl = data.DataLoader(
+        test_ds,
+        batch_size=args.batch_size,
+        shuffle=args.drop_shuffle,
+        drop_last=args.drop_shuffle,
+        pin_memory=args.pin_mem,
+        num_workers=int(args.num_workers))
+
+    model = Lavt(args)
+    model.to(device)
+
+    state_dict = torch.load(args.ckpt)
+    model.load_state_dict(state_dict)
+
+    bert_model = BertModel.from_pretrained('bert-base-uncased')
+    bert_model.to(device)
+
+    test(args, model, bert_model, criterion, test_dl, device)
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    load_test('output/lavt_base_40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')
