@@ -7,11 +7,11 @@ def get_args_parser():
     # Train parameters
     parser.add_argument('--batch_size', default=10, type=int, help='Batch size per GPU')
     parser.add_argument('--start_epoch', default=1, type=int, help='Start training epoch')
-    parser.add_argument('--epochs', default=5, type=int, help='Total training epochs')
+    parser.add_argument('--epochs', default=40, type=int, help='Total training epochs')
     parser.add_argument('--save_freq', default=20, type=int, help='Saving model frequency(epoch)')
     # parser.add_argument('--eval_freq', default=40, type=int, help='Evaluation frequency(epoch)')
     parser.add_argument('--seed', default=1, type=int)
-    parser.add_argument('--lr', type=float, default=0.00005, metavar='LR', help='Learning rate (absolute lr)')
+    parser.add_argument('--lr', default=0.00005, type=float, metavar='LR', help='Learning rate (absolute lr)')
     parser.add_argument('--device', default='cuda', help='Device to use for training / testing')
     parser.add_argument('--num_workers', default=1, type=int)
     parser.add_argument('--grad_checkpointing', action='store_true')
@@ -26,10 +26,10 @@ def get_args_parser():
 
     # Save paths
     parser.add_argument('--tb_dir', default='output/tb', type=str, help='Directory of tensorboard log')
-    parser.add_argument('--ckpt', type=str, default=None, help='Where to load model checkpoint')
-    parser.add_argument('--ckpt_output_dir', type=str, default='output/ckpt', help='Where to save checkpoint')
-    parser.add_argument('--img_output_dir', type=str, default='output/img', help='Where to save imgs')
-    parser.add_argument('--print_dir', type=str, default='output/print', help='Where to save printed info')
+    parser.add_argument('--ckpt', default=None, type=str, help='Where to load model checkpoint')
+    parser.add_argument('--ckpt_output_dir', default='output/ckpt', type=str, help='Where to save checkpoint')
+    parser.add_argument('--img_output_dir', default='output/img', type=str, help='Where to save imgs')
+    parser.add_argument('--print_dir', default='output/print', type=str, help='Where to save printed info')
 
     # Dataset parameters
     parser.add_argument('--max_image_num', default=200, type=int, help='Number of images for training')
@@ -42,7 +42,7 @@ def get_args_parser():
 
     # Model parameters
     parser.add_argument('--model', default='lavt_base', type=str, metavar='MODEL', help='Name of model to train')
-    parser.add_argument("--img_embed_model", choices=['dinov2', 'patch_embed'], default='dinov2',
+    parser.add_argument("--img_embed_model", default='dinov2', choices=['dinov2', 'patch_embed'],
                         help='Choose image embedding model')
     parser.add_argument("--img_token_size", default=768, type=int, help='Length of image token')
 
