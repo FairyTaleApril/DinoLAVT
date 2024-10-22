@@ -103,12 +103,12 @@ def test(args, model, bert_model, crit, data_loader, device):
         f.write(f'Overall IoU = {cum_I * 100. / cum_U: .2f}\n')
 
 
-def train_one_epoch(epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
+def train_one_epoch(epoch, model, bert_model, crit, optimizer, data_loader, device):
     model.train()
 
     loss, num = 0.0, 0
     for _, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
-        imgs, tokens, targets, sentences, attentions = data
+        imgs, tokens, targets, sentences, attentions = next_data
 
         imgs = imgs.to(device, non_blocking=True)
         tokens = tokens.to(device, non_blocking=True)
@@ -159,9 +159,17 @@ def main():
         transforms.ToTensor()
     ])
     train_ds = get_dataset(args, "train", image_transform=image_transform, target_transforms=target_transforms)
-
     train_dl = data.DataLoader(
         train_ds,
+        batch_size=args.batch_size,
+        shuffle=args.drop_shuffle,
+        drop_last=args.drop_shuffle,
+        pin_memory=args.pin_mem,
+        num_workers=int(args.num_workers))
+
+    test_ds = get_dataset(args, "test", image_transform=image_transform, target_transforms=target_transforms)
+    test_dl = data.DataLoader(
+        test_ds,
         batch_size=args.batch_size,
         shuffle=args.drop_shuffle,
         drop_last=args.drop_shuffle,
@@ -208,7 +216,7 @@ def main():
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     info(f'Training time {total_time_str}')
 
-    test(args, model, bert_model, criterion, train_dl, device)
+    test(args, model, bert_model, criterion, test_dl, device)
 
 
 def load_test(pth=None):
@@ -229,8 +237,7 @@ def load_test(pth=None):
     target_transforms = transforms.Compose([
         transforms.ToTensor()
     ])
-    test_ds = get_dataset(args, "train", image_transform=image_transform, target_transforms=target_transforms)
-
+    test_ds = get_dataset(args, "test", image_transform=image_transform, target_transforms=target_transforms)
     test_dl = data.DataLoader(
         test_ds,
         batch_size=args.batch_size,
@@ -252,5 +259,5 @@ def load_test(pth=None):
 
 
 if __name__ == '__main__':
-    # main()
-    load_test('output/lavt_base_40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')
+    main()
+    # load_test('output/dinov2 40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')

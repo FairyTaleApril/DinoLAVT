@@ -7,7 +7,7 @@ def get_args_parser():
     # Train parameters
     parser.add_argument('--batch_size', default=10, type=int, help='Batch size per GPU')
     parser.add_argument('--start_epoch', default=1, type=int, help='Start training epoch')
-    parser.add_argument('--epochs', default=40, type=int, help='Total training epochs')
+    parser.add_argument('--epochs', default=5, type=int, help='Total training epochs')
     parser.add_argument('--save_freq', default=20, type=int, help='Saving model frequency(epoch)')
     # parser.add_argument('--eval_freq', default=40, type=int, help='Evaluation frequency(epoch)')
     parser.add_argument('--seed', default=1, type=int)
@@ -33,6 +33,7 @@ def get_args_parser():
 
     # Dataset parameters
     parser.add_argument('--max_image_num', default=200, type=int, help='Number of images for training')
+    parser.add_argument('--test_image_num', default=40, type=int, help='Number of images for training')
     parser.add_argument('--img_size', default=480, type=int, help='Input image size')
     parser.add_argument('--dataset', default='refcoco+', help='Refcoco, refcoco+, or refcocog')
     parser.add_argument('--data_dir', default='data', type=str, help='Directory of dataset')
