@@ -34,6 +34,7 @@ class MyDataset(data.Dataset):
 
         self.classes = []
         self.input_ids = []
+        self.raw_sentences = []
         self.pre_attention_masks = []
 
         # If we are testing on a dataset, test all sentences of an object;
@@ -41,6 +42,7 @@ class MyDataset(data.Dataset):
         for r in ref_ids:
             ref = self.refer.Refs[r]
 
+            sentences_raw_for_ref = []
             sentences_for_ref = []
             attentions_for_ref = []
 
@@ -57,15 +59,18 @@ class MyDataset(data.Dataset):
                 padded_input_ids[:len(input_ids)] = input_ids
                 attention_mask[:len(input_ids)] = [1]*len(input_ids)
 
+                sentences_raw_for_ref.append(sentence_raw)
                 sentences_for_ref.append(torch.tensor(padded_input_ids).unsqueeze(0))
                 attentions_for_ref.append(torch.tensor(attention_mask).unsqueeze(0))
 
             self.input_ids.append(sentences_for_ref)
             self.pre_attention_masks.append(attentions_for_ref)
+            self.raw_sentences.append(sentences_raw_for_ref)
 
         self.imgs = []
         self.dino_tokens = []
         self.targets = []
+        self.sentences = []
         self.tensor_embeddings = []
         self.attention_masks = []
 
@@ -104,6 +109,7 @@ class MyDataset(data.Dataset):
             self.targets.append(target)
 
             choice_sent = np.random.choice(len(self.input_ids[i]))
+            self.sentences.append(self.raw_sentences[i][choice_sent])
             tensor_embedding = self.input_ids[i][choice_sent]
             self.tensor_embeddings.append(tensor_embedding)
             attention_mask = self.pre_attention_masks[i][choice_sent]
@@ -116,6 +122,7 @@ class MyDataset(data.Dataset):
         img = self.imgs[index]
         dino_token = self.dino_tokens[index]
         target = self.targets[index]
+        raw_sentence = self.sentences[index]
         tensor_embedding = self.tensor_embeddings[index]
         attention_mask = self.attention_masks[index]
-        return img, dino_token, target, tensor_embedding, attention_mask
+        return img, dino_token, target, raw_sentence, tensor_embedding, attention_mask

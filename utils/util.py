@@ -42,3 +42,27 @@ def computeIoU(pred_seg, gd_seg):
     U = np.sum(np.logical_or(pred_seg, gd_seg))
 
     return I, U
+
+def overlay_davis(image, mask, colors=[[0, 0, 0], [255, 0, 0]], cscale=1, alpha=0.4):
+    from scipy.ndimage.morphology import binary_dilation
+
+    colors = np.reshape(colors, (-1, 3))
+    colors = np.atleast_2d(colors) * cscale
+
+    im_overlay = image.copy()
+    object_ids = np.unique(mask)
+
+    for object_id in object_ids[1:]:
+        # Overlay color on  binary mask
+        foreground = image*alpha + np.ones(image.shape)*(1-alpha) * np.array(colors[object_id])
+        binary_mask = mask == object_id
+
+        # Compose image
+        im_overlay[binary_mask] = foreground[binary_mask]
+
+        # countours = skimage.morphology.binary.binary_dilation(binary_mask) - binary_mask
+        countours = binary_dilation(binary_mask) ^ binary_mask
+        # countours = cv2.dilate(binary_mask, cv2.getStructuringElement(cv2.MORPH_CROSS,(3,3))) - binary_mask
+        im_overlay[countours, :] = 0
+
+    return im_overlay.astype(image.dtype)

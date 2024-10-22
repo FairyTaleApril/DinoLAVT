@@ -5,6 +5,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser('LAVT with Dino', add_help=False)
 
     # Train parameters
+    parser.add_argument('--eval', action='store_true', help='Evaluate model')
     parser.add_argument('--batch_size', default=10, type=int, help='Batch size per GPU')
     parser.add_argument('--start_epoch', default=1, type=int, help='Start training epoch')
     parser.add_argument('--epochs', default=40, type=int, help='Total training epochs')
@@ -15,11 +16,11 @@ def get_args_parser():
     parser.add_argument('--device', default='cuda', help='Device to use for training / testing')
     parser.add_argument('--num_workers', default=1, type=int)
     parser.add_argument('--grad_checkpointing', action='store_true')
-    parser.add_argument('--pin_mem', action='store_true', default=True,
+    parser.add_argument('--pin_mem', action='store_true',
                         help='Pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU')
     parser.set_defaults(pin_mem=True)
     parser.add_argument('--no_pin_mem', action='store_false', dest='pin_mem')
-    parser.add_argument('--drop_shuffle', action='store_true', default=True,
+    parser.add_argument('--drop_shuffle', action='store_true',
                         help='Drop last and shuffle in training DataLoader')
     parser.set_defaults(drop_shuffle=True)
     parser.add_argument('--no_drop_shuffle', action='store_false', dest='drop_shuffle')

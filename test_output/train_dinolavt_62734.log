@@ -1,0 +1,453 @@
+/home/projects/u7619568/DinoLAVT
+mlcv3
+Tue Oct 22 23:30:02 AEDT 2024
+--- training ---
+Activating conda environment /home/remote/u7619568/.conda/envs/dinolavt/
+Constructing dataset...
+Loading dataset refcoco+ into memory...
+Data loaded (t = 3.44s)
+Processing data:   0%|          | 0/438 [00:00<?, ?it/s]Processing data:   0%|          | 2/438 [00:00<00:23, 18.52it/s]Processing data:   2%|▏         | 8/438 [00:00<00:10, 40.79it/s]Processing data:   4%|▎         | 16/438 [00:00<00:07, 56.13it/s]Processing data:   6%|▌         | 25/438 [00:00<00:06, 66.97it/s]Processing data:   7%|▋         | 32/438 [00:00<00:06, 64.59it/s]Processing data:   9%|▉         | 39/438 [00:00<00:06, 63.86it/s]Processing data:  11%|█         | 47/438 [00:00<00:05, 68.52it/s]Processing data:  12%|█▏        | 54/438 [00:00<00:05, 67.33it/s]Processing data:  14%|█▍        | 61/438 [00:00<00:05, 64.73it/s]Processing data:  16%|█▌        | 68/438 [00:01<00:05, 64.92it/s]Processing data:  17%|█▋        | 75/438 [00:01<00:05, 65.20it/s]Processing data:  19%|█▉        | 83/438 [00:01<00:05, 67.38it/s]Processing data:  21%|██        | 90/438 [00:01<00:05, 67.21it/s]Processing data:  22%|██▏       | 97/438 [00:01<00:05, 64.38it/s]Processing data:  24%|██▎       | 104/438 [00:01<00:05, 65.82it/s]Processing data:  25%|██▌       | 111/438 [00:01<00:04, 66.86it/s]Processing data:  27%|██▋       | 118/438 [00:01<00:04, 67.69it/s]Processing data:  29%|██▊       | 125/438 [00:01<00:04, 66.98it/s]Processing data:  30%|███       | 132/438 [00:02<00:04, 65.90it/s]Processing data:  32%|███▏      | 139/438 [00:02<00:04, 65.45it/s]Processing data:  33%|███▎      | 146/438 [00:02<00:04, 64.38it/s]Processing data:  35%|███▍      | 153/438 [00:02<00:04, 65.50it/s]Processing data:  37%|███▋      | 161/438 [00:02<00:04, 67.04it/s]Processing data:  38%|███▊      | 168/438 [00:02<00:04, 66.61it/s]Processing data:  40%|███▉      | 175/438 [00:02<00:04, 64.63it/s]Processing data:  42%|████▏     | 182/438 [00:02<00:03, 64.88it/s]Processing data:  43%|████▎     | 189/438 [00:02<00:03, 63.79it/s]Processing data:  45%|████▍     | 196/438 [00:03<00:03, 63.24it/s]Processing data:  46%|████▋     | 203/438 [00:03<00:03, 64.39it/s]Processing data:  48%|████▊     | 211/438 [00:03<00:03, 65.73it/s]Processing data:  50%|████▉     | 218/438 [00:03<00:03, 66.13it/s]Processing data:  52%|█████▏    | 226/438 [00:03<00:03, 68.59it/s]Processing data:  53%|█████▎    | 233/438 [00:03<00:03, 68.03it/s]Processing data:  55%|█████▍    | 240/438 [00:03<00:02, 66.67it/s]Processing data:  56%|█████▋    | 247/438 [00:03<00:02, 64.53it/s]Processing data:  58%|█████▊    | 254/438 [00:03<00:02, 63.17it/s]Processing data:  60%|█████▉    | 261/438 [00:04<00:02, 64.68it/s]Processing data:  61%|██████    | 268/438 [00:04<00:02, 64.45it/s]Processing data:  63%|██████▎   | 275/438 [00:04<00:02, 64.06it/s]Processing data:  65%|██████▍   | 283/438 [00:04<00:02, 65.96it/s]Processing data:  66%|██████▋   | 291/438 [00:04<00:02, 67.47it/s]Processing data:  68%|██████▊   | 299/438 [00:04<00:02, 68.56it/s]Processing data:  70%|███████   | 307/438 [00:04<00:01, 68.45it/s]Processing data:  72%|███████▏  | 314/438 [00:04<00:01, 67.78it/s]Processing data:  74%|███████▎  | 322/438 [00:04<00:01, 67.79it/s]Processing data:  75%|███████▌  | 329/438 [00:05<00:01, 62.77it/s]Processing data:  77%|███████▋  | 336/438 [00:05<00:01, 62.19it/s]Processing data:  78%|███████▊  | 343/438 [00:05<00:01, 62.60it/s]Processing data:  80%|████████  | 351/438 [00:05<00:01, 64.33it/s]Processing data:  82%|████████▏ | 358/438 [00:05<00:01, 65.85it/s]Processing data:  84%|████████▎ | 366/438 [00:05<00:01, 68.29it/s]Processing data:  85%|████████▌ | 373/438 [00:05<00:00, 66.32it/s]Processing data:  87%|████████▋ | 380/438 [00:05<00:00, 67.12it/s]Processing data:  88%|████████▊ | 387/438 [00:05<00:00, 67.31it/s]Processing data:  90%|████████▉ | 394/438 [00:06<00:00, 65.15it/s]Processing data:  92%|█████████▏| 401/438 [00:06<00:00, 65.80it/s]Processing data:  93%|█████████▎| 408/438 [00:06<00:00, 66.55it/s]Processing data:  95%|█████████▍| 415/438 [00:06<00:00, 65.13it/s]Processing data:  96%|█████████▋| 422/438 [00:06<00:00, 65.73it/s]Processing data:  98%|█████████▊| 430/438 [00:06<00:00, 67.67it/s]Processing data: 100%|█████████▉| 437/438 [00:06<00:00, 67.74it/s]Processing data: 100%|██████████| 438/438 [00:06<00:00, 65.39it/s]
+Dataset constructed
+Testing LAVT...:   0%|          | 0/44 [00:00<?, ?it/s]Testing LAVT...:   2%|▏         | 1/44 [00:03<02:51,  3.98s/it]Testing LAVT...:   5%|▍         | 2/44 [00:06<02:16,  3.25s/it]Testing LAVT...:   7%|▋         | 3/44 [00:09<02:01,  2.96s/it]Testing LAVT...:   9%|▉         | 4/44 [00:12<01:53,  2.85s/it]Testing LAVT...:  11%|█▏        | 5/44 [00:14<01:47,  2.76s/it]Testing LAVT...:  14%|█▎        | 6/44 [00:17<01:43,  2.73s/it]Testing LAVT...:  16%|█▌        | 7/44 [00:19<01:39,  2.69s/it]Testing LAVT...:  18%|█▊        | 8/44 [00:22<01:36,  2.69s/it]Testing LAVT...:  20%|██        | 9/44 [00:25<01:33,  2.67s/it]Testing LAVT...:  23%|██▎       | 10/44 [00:27<01:30,  2.65s/it]Testing LAVT...:  25%|██▌       | 11/44 [00:30<01:27,  2.64s/it]Testing LAVT...:  27%|██▋       | 12/44 [00:33<01:23,  2.62s/it]Testing LAVT...:  30%|██▉       | 13/44 [00:35<01:21,  2.62s/it]Testing LAVT...:  32%|███▏      | 14/44 [00:38<01:18,  2.61s/it]Testing LAVT...:  34%|███▍      | 15/44 [00:40<01:15,  2.61s/it]Testing LAVT...:  36%|███▋      | 16/44 [00:43<01:13,  2.61s/it]Testing LAVT...:  39%|███▊      | 17/44 [00:46<01:10,  2.61s/it]Testing LAVT...:  41%|████      | 18/44 [00:48<01:07,  2.61s/it]Testing LAVT...:  43%|████▎     | 19/44 [00:51<01:04,  2.59s/it]Testing LAVT...:  45%|████▌     | 20/44 [00:53<01:02,  2.60s/it]Testing LAVT...:  48%|████▊     | 21/44 [00:56<01:00,  2.62s/it]Testing LAVT...:  50%|█████     | 22/44 [00:59<00:57,  2.61s/it]Testing LAVT...:  52%|█████▏    | 23/44 [01:01<00:54,  2.61s/it]Testing LAVT...:  55%|█████▍    | 24/44 [01:04<00:52,  2.61s/it]Testing LAVT...:  57%|█████▋    | 25/44 [01:06<00:49,  2.63s/it]Testing LAVT...:  59%|█████▉    | 26/44 [01:09<00:47,  2.64s/it]Testing LAVT...:  61%|██████▏   | 27/44 [01:12<00:44,  2.64s/it]Testing LAVT...:  64%|██████▎   | 28/44 [01:14<00:42,  2.64s/it]Testing LAVT...:  66%|██████▌   | 29/44 [01:17<00:39,  2.63s/it]Testing LAVT...:  68%|██████▊   | 30/44 [01:20<00:36,  2.63s/it]Testing LAVT...:  70%|███████   | 31/44 [01:22<00:34,  2.63s/it]Testing LAVT...:  73%|███████▎  | 32/44 [01:25<00:31,  2.63s/it]Testing LAVT...:  75%|███████▌  | 33/44 [01:28<00:29,  2.64s/it]Testing LAVT...:  77%|███████▋  | 34/44 [01:30<00:26,  2.63s/it]Testing LAVT...:  80%|███████▉  | 35/44 [01:33<00:23,  2.61s/it]Testing LAVT...:  82%|████████▏ | 36/44 [01:35<00:20,  2.60s/it]Testing LAVT...:  84%|████████▍ | 37/44 [01:38<00:18,  2.60s/it]Testing LAVT...:  86%|████████▋ | 38/44 [01:41<00:15,  2.60s/it]Testing LAVT...:  89%|████████▊ | 39/44 [01:43<00:12,  2.58s/it]Testing LAVT...:  91%|█████████ | 40/44 [01:46<00:10,  2.59s/it]Testing LAVT...:  93%|█████████▎| 41/44 [01:48<00:07,  2.58s/it]Testing LAVT...:  95%|█████████▌| 42/44 [01:51<00:05,  2.60s/it]Testing LAVT...:  98%|█████████▊| 43/44 [01:53<00:02,  2.60s/it]Testing LAVT...: 100%|██████████| 44/44 [01:56<00:00,  2.60s/it]Testing LAVT...: 100%|██████████| 44/44 [01:56<00:00,  2.65s/it]
+2024-10-22 23:30:26 - INFO - sentence(0-0): woman back in blue
+2024-10-22 23:30:26 - INFO - sentence(0-1): grey shirt wearing glasses
+2024-10-22 23:30:27 - INFO - sentence(0-2): standing with racket
+2024-10-22 23:30:27 - INFO - sentence(0-3): ditting darker hair
+2024-10-22 23:30:27 - INFO - sentence(0-4): holding a green object
+2024-10-22 23:30:27 - INFO - sentence(0-5): man in brown
+2024-10-22 23:30:27 - INFO - sentence(0-6): urinal closest to the white pipe
+2024-10-22 23:30:27 - INFO - sentence(0-7): pisser far Rat
+2024-10-22 23:30:27 - INFO - sentence(0-8): vase holding tallest flower
+2024-10-22 23:30:27 - INFO - sentence(0-9): vase of flower drooping
+2024-10-22 23:30:29 - INFO - sentence(1-0): vase touching drooping flower
+2024-10-22 23:30:29 - INFO - sentence(1-1): red bus you don't see the front of
+2024-10-22 23:30:29 - INFO - sentence(1-2): whole bus
+2024-10-22 23:30:29 - INFO - sentence(1-3): long brown hair
+2024-10-22 23:30:30 - INFO - sentence(1-4): girl player with earing
+2024-10-22 23:30:30 - INFO - sentence(1-5): boy with A cap close
+2024-10-22 23:30:30 - INFO - sentence(1-6): bird 2
+2024-10-22 23:30:30 - INFO - sentence(1-7): smaller black bird
+2024-10-22 23:30:30 - INFO - sentence(1-8): mid laptop partially hidden
+2024-10-22 23:30:30 - INFO - sentence(1-9): closer computer
+2024-10-22 23:30:32 - INFO - sentence(2-0): the back of the hand
+2024-10-22 23:30:32 - INFO - sentence(2-1): blurry head above the silvery keyboard
+2024-10-22 23:30:32 - INFO - sentence(2-2): man blue shirt
+2024-10-22 23:30:32 - INFO - sentence(2-3): grey shrit
+2024-10-22 23:30:32 - INFO - sentence(2-4): lady in white shirt
+2024-10-22 23:30:32 - INFO - sentence(2-5): piece with meat on it.
+2024-10-22 23:30:32 - INFO - sentence(2-6): red unions
+2024-10-22 23:30:33 - INFO - sentence(2-7): brown and white cow sitting down
+2024-10-22 23:30:33 - INFO - sentence(2-8): cow sticking their booty at you
+2024-10-22 23:30:33 - INFO - sentence(2-9): white player
+2024-10-22 23:30:34 - INFO - sentence(3-0): GIRL IN BLACK
+2024-10-22 23:30:35 - INFO - sentence(3-1): face outside the cake
+2024-10-22 23:30:35 - INFO - sentence(3-2): green shirt
+2024-10-22 23:30:35 - INFO - sentence(3-3): hands cutting cake
+2024-10-22 23:30:35 - INFO - sentence(3-4): lowest row number two clock
+2024-10-22 23:30:35 - INFO - sentence(3-5): clock face closest big toe near 8
+2024-10-22 23:30:35 - INFO - sentence(3-6): clock with square at 6
+2024-10-22 23:30:35 - INFO - sentence(3-7): closest pony
+2024-10-22 23:30:35 - INFO - sentence(3-8): horse small girl is on
+2024-10-22 23:30:35 - INFO - sentence(3-9): man with tie
+2024-10-22 23:30:37 - INFO - sentence(4-0): black and white cat
+2024-10-22 23:30:37 - INFO - sentence(4-1): floor cat
+2024-10-22 23:30:37 - INFO - sentence(4-2): player not in focus
+2024-10-22 23:30:37 - INFO - sentence(4-3): BLACK HAIR
+2024-10-22 23:30:38 - INFO - sentence(4-4): pizza
+2024-10-22 23:30:38 - INFO - sentence(4-5): pizza in the back
+2024-10-22 23:30:38 - INFO - sentence(4-6): MAN IN PLAID
+2024-10-22 23:30:38 - INFO - sentence(4-7): white shirt
+2024-10-22 23:30:38 - INFO - sentence(4-8): you can see part of a blue shirt
+2024-10-22 23:30:38 - INFO - sentence(4-9): striped shirt
+2024-10-22 23:30:40 - INFO - sentence(5-0): lady
+2024-10-22 23:30:40 - INFO - sentence(5-1): might be a head blob
+2024-10-22 23:30:40 - INFO - sentence(5-2): blue train
+2024-10-22 23:30:40 - INFO - sentence(5-3): chair closest to bench
+2024-10-22 23:30:40 - INFO - sentence(5-4): couch arm that is barely on the screen corner
+2024-10-22 23:30:40 - INFO - sentence(5-5): chair at 3 o clock
+2024-10-22 23:30:40 - INFO - sentence(5-6): upholstered chair
+2024-10-22 23:30:40 - INFO - sentence(5-7): striped seat with back showing
+2024-10-22 23:30:41 - INFO - sentence(5-8): red bike
+2024-10-22 23:30:41 - INFO - sentence(5-9): 13
+2024-10-22 23:30:42 - INFO - sentence(6-0): cut off bike at 7 o clock
+2024-10-22 23:30:42 - INFO - sentence(6-1): wheel of motorcycle that is mostly hidden beside white shirt
+2024-10-22 23:30:43 - INFO - sentence(6-2): blue jeans guy
+2024-10-22 23:30:43 - INFO - sentence(6-3): dark object to side with green square
+2024-10-22 23:30:43 - INFO - sentence(6-4): cloest to camera
+2024-10-22 23:30:43 - INFO - sentence(6-5): zebra partially hidden by closest zebra
+2024-10-22 23:30:43 - INFO - sentence(6-6): sk8er grrl
+2024-10-22 23:30:43 - INFO - sentence(6-7): white shirt guy
+2024-10-22 23:30:43 - INFO - sentence(6-8): girl standing alone
+2024-10-22 23:30:43 - INFO - sentence(6-9): blonde woman
+2024-10-22 23:30:45 - INFO - sentence(7-0): man drinking
+2024-10-22 23:30:45 - INFO - sentence(7-1): Guy in black shirt
+2024-10-22 23:30:45 - INFO - sentence(7-2): piece that is laying down
+2024-10-22 23:30:45 - INFO - sentence(7-3): food
+2024-10-22 23:30:45 - INFO - sentence(7-4): turquoise brusher
+2024-10-22 23:30:46 - INFO - sentence(7-5): all blue toothbrush next to green one
+2024-10-22 23:30:46 - INFO - sentence(7-6): toothbrush with yellow tip
+2024-10-22 23:30:46 - INFO - sentence(7-7): blue bristles near the yellow brush
+2024-10-22 23:30:46 - INFO - sentence(7-8): purple tie
+2024-10-22 23:30:46 - INFO - sentence(7-9): blond boy
+2024-10-22 23:30:48 - INFO - sentence(8-0): long blurry hair of woman
+2024-10-22 23:30:48 - INFO - sentence(8-1): guy with roses
+2024-10-22 23:30:48 - INFO - sentence(8-2): guy with program
+2024-10-22 23:30:48 - INFO - sentence(8-3): blue seat next to brown suitcase
+2024-10-22 23:30:48 - INFO - sentence(8-4): edge of carpet by window next to shoes
+2024-10-22 23:30:48 - INFO - sentence(8-5): man beside man in light blue shirt but you can only see less than half of him
+2024-10-22 23:30:48 - INFO - sentence(8-6): blue shirt
+2024-10-22 23:30:48 - INFO - sentence(8-7): can see his hand
+2024-10-22 23:30:49 - INFO - sentence(8-8): The couch the man making the hang loose sign is sitting on
+2024-10-22 23:30:49 - INFO - sentence(8-9): part of sofa shown under dog
+2024-10-22 23:30:50 - INFO - sentence(9-0): broccoli piece with sort of brown head
+2024-10-22 23:30:50 - INFO - sentence(9-1): big piece of broccoli
+2024-10-22 23:30:51 - INFO - sentence(9-2): woman in white
+2024-10-22 23:30:51 - INFO - sentence(9-3): girl in red
+2024-10-22 23:30:51 - INFO - sentence(9-4): whipped cream flower
+2024-10-22 23:30:51 - INFO - sentence(9-5): big slice of cake
+2024-10-22 23:30:51 - INFO - sentence(9-6): the red chair
+2024-10-22 23:30:51 - INFO - sentence(9-7): couch
+2024-10-22 23:30:51 - INFO - sentence(9-8): man farthest back with only lower half of face visible
+2024-10-22 23:30:51 - INFO - sentence(9-9): green shirt
+2024-10-22 23:30:53 - INFO - sentence(10-0): Spectator white hat
+2024-10-22 23:30:53 - INFO - sentence(10-1): tennis player
+2024-10-22 23:30:53 - INFO - sentence(10-2): dark brown donut in back
+2024-10-22 23:30:53 - INFO - sentence(10-3): closest to us white donut has no sprinkles
+2024-10-22 23:30:53 - INFO - sentence(10-4): highest white donut
+2024-10-22 23:30:53 - INFO - sentence(10-5): donut between three sprinkled ones
+2024-10-22 23:30:54 - INFO - sentence(10-6): doughnut with sprinkles at the edge of plate
+2024-10-22 23:30:54 - INFO - sentence(10-7): white less sprinkles
+2024-10-22 23:30:54 - INFO - sentence(10-8): light brown nearest us
+2024-10-22 23:30:54 - INFO - sentence(10-9): all donuts on edge
+2024-10-22 23:30:55 - INFO - sentence(11-0): the donut thing with white frosting and nuts
+2024-10-22 23:30:56 - INFO - sentence(11-1): grey dumptruck, partially visible
+2024-10-22 23:30:56 - INFO - sentence(11-2): the truck
+2024-10-22 23:30:56 - INFO - sentence(11-3): far bus
+2024-10-22 23:30:56 - INFO - sentence(11-4): closest bus
+2024-10-22 23:30:56 - INFO - sentence(11-5): spoon close to cup
+2024-10-22 23:30:56 - INFO - sentence(11-6): spoon
+2024-10-22 23:30:56 - INFO - sentence(11-7): red head woman
+2024-10-22 23:30:56 - INFO - sentence(11-8): tubbier
+2024-10-22 23:30:56 - INFO - sentence(11-9): the giraffe that has its head held highest proud and free
+2024-10-22 23:30:58 - INFO - sentence(12-0): tall giraffe bent over
+2024-10-22 23:30:58 - INFO - sentence(12-1): woman in black having her nose picked by wine
+2024-10-22 23:30:58 - INFO - sentence(12-2): white jacket
+2024-10-22 23:30:58 - INFO - sentence(12-3): grey guy
+2024-10-22 23:30:59 - INFO - sentence(12-4): blue jacket man
+2024-10-22 23:30:59 - INFO - sentence(12-5): woman in white hat holding child's arm
+2024-10-22 23:30:59 - INFO - sentence(12-6): child
+2024-10-22 23:30:59 - INFO - sentence(12-7): taller
+2024-10-22 23:30:59 - INFO - sentence(12-8): giants 11
+2024-10-22 23:30:59 - INFO - sentence(12-9): woman seated on field
+2024-10-22 23:31:01 - INFO - sentence(13-0): person in blue
+2024-10-22 23:31:01 - INFO - sentence(13-1): girl
+2024-10-22 23:31:01 - INFO - sentence(13-2): blurry hand in corner
+2024-10-22 23:31:01 - INFO - sentence(13-3): beer above the fries
+2024-10-22 23:31:01 - INFO - sentence(13-4): yellow glass closet to burger near camera
+2024-10-22 23:31:01 - INFO - sentence(13-5): person with burger
+2024-10-22 23:31:01 - INFO - sentence(13-6): bear holding bars
+2024-10-22 23:31:01 - INFO - sentence(13-7): no hands on cage bear
+2024-10-22 23:31:02 - INFO - sentence(13-8): woman with all black outfit and white purse strap
+2024-10-22 23:31:02 - INFO - sentence(13-9): red dress
+2024-10-22 23:31:03 - INFO - sentence(14-0): woman walking with white shirt red long sleeeve and boots
+2024-10-22 23:31:03 - INFO - sentence(14-1): guitar
+2024-10-22 23:31:03 - INFO - sentence(14-2): bigger woman
+2024-10-22 23:31:04 - INFO - sentence(14-3): skinnier lady
+2024-10-22 23:31:04 - INFO - sentence(14-4): dark print above cat
+2024-10-22 23:31:04 - INFO - sentence(14-5): seat white
+2024-10-22 23:31:04 - INFO - sentence(14-6): 16
+2024-10-22 23:31:04 - INFO - sentence(14-7): Light Signal
+2024-10-22 23:31:04 - INFO - sentence(14-8): white shirt leaning over
+2024-10-22 23:31:04 - INFO - sentence(14-9): white shirt standing
+2024-10-22 23:31:06 - INFO - sentence(15-0): white outfit
+2024-10-22 23:31:06 - INFO - sentence(15-1): blue stripes
+2024-10-22 23:31:06 - INFO - sentence(15-2): the kid
+2024-10-22 23:31:06 - INFO - sentence(15-3): A little girl sitting at a table.
+2024-10-22 23:31:06 - INFO - sentence(15-4): blurry man in background with yellow vest
+2024-10-22 23:31:06 - INFO - sentence(15-5): blurry guy near JOOLA
+2024-10-22 23:31:07 - INFO - sentence(15-6): blue man
+2024-10-22 23:31:07 - INFO - sentence(15-7): side of fridge with no water
+2024-10-22 23:31:07 - INFO - sentence(15-8): fridge section with ice maker
+2024-10-22 23:31:07 - INFO - sentence(15-9): 8 o clock couch
+2024-10-22 23:31:09 - INFO - sentence(16-0): guy between batters legs
+2024-10-22 23:31:09 - INFO - sentence(16-1): blurry man wearing cap leaning against fence
+2024-10-22 23:31:09 - INFO - sentence(16-2): batter batter eh
+2024-10-22 23:31:09 - INFO - sentence(16-3): 59 cow
+2024-10-22 23:31:09 - INFO - sentence(16-4): brown cow behind main one
+2024-10-22 23:31:09 - INFO - sentence(16-5): close cow
+2024-10-22 23:31:09 - INFO - sentence(16-6): dots shirt
+2024-10-22 23:31:09 - INFO - sentence(16-7): glasses girl
+2024-10-22 23:31:09 - INFO - sentence(16-8): purple shirt
+2024-10-22 23:31:09 - INFO - sentence(16-9): gray nike shirt
+2024-10-22 23:31:11 - INFO - sentence(17-0): white shirt
+2024-10-22 23:31:11 - INFO - sentence(17-1): they're all blond....  close to us, has mouth open
+2024-10-22 23:31:11 - INFO - sentence(17-2): blonde and both boy hands on table
+2024-10-22 23:31:11 - INFO - sentence(17-3): back of head closest
+2024-10-22 23:31:12 - INFO - sentence(17-4): girl in black shirt at the table
+2024-10-22 23:31:12 - INFO - sentence(17-5): person by blue plate closest to us with face
+2024-10-22 23:31:12 - INFO - sentence(17-6): Burger that you cant see well
+2024-10-22 23:31:12 - INFO - sentence(17-7): burger most shown
+2024-10-22 23:31:12 - INFO - sentence(17-8): last broccoli
+2024-10-22 23:31:12 - INFO - sentence(17-9): Broccoli piece with the most seeds
+2024-10-22 23:31:14 - INFO - sentence(18-0): guy closest to us
+2024-10-22 23:31:14 - INFO - sentence(18-1): man standing apart from group
+2024-10-22 23:31:14 - INFO - sentence(18-2): man behind military man in black
+2024-10-22 23:31:14 - INFO - sentence(18-3): Guy in dark suit shaking hands
+2024-10-22 23:31:14 - INFO - sentence(18-4): WHITE UNIFORM
+2024-10-22 23:31:14 - INFO - sentence(18-5): Chair closest to you
+2024-10-22 23:31:14 - INFO - sentence(18-6): sassy girl
+2024-10-22 23:31:14 - INFO - sentence(18-7): orange
+2024-10-22 23:31:15 - INFO - sentence(18-8): spot behind his arm
+2024-10-22 23:31:15 - INFO - sentence(18-9): Min bike
+2024-10-22 23:31:16 - INFO - sentence(19-0): baby elephant
+2024-10-22 23:31:16 - INFO - sentence(19-1): the one facing you
+2024-10-22 23:31:17 - INFO - sentence(19-2): guy not cooking
+2024-10-22 23:31:17 - INFO - sentence(19-3): red shirt in back
+2024-10-22 23:31:17 - INFO - sentence(19-4): WOMAN IN SOLID MAROON SHIRT
+2024-10-22 23:31:17 - INFO - sentence(19-5): Woman in black shirt
+2024-10-22 23:31:17 - INFO - sentence(19-6): tablecloth hanging down
+2024-10-22 23:31:17 - INFO - sentence(19-7): table where only man with blue shirt is sitting
+2024-10-22 23:31:17 - INFO - sentence(19-8): old half bald gramps next sohort haired gray haired lady
+2024-10-22 23:31:17 - INFO - sentence(19-9): old man with white hair back shown wearing plaid
+2024-10-22 23:31:19 - INFO - sentence(20-0): eating area
+2024-10-22 23:31:19 - INFO - sentence(20-1): large chair closest to the window
+2024-10-22 23:31:19 - INFO - sentence(20-2): chair by window, has pintucks
+2024-10-22 23:31:19 - INFO - sentence(20-3): chair closes to us
+2024-10-22 23:31:19 - INFO - sentence(20-4): Closest seat
+2024-10-22 23:31:19 - INFO - sentence(20-5): empty chair
+2024-10-22 23:31:20 - INFO - sentence(20-6): bear
+2024-10-22 23:31:20 - INFO - sentence(20-7): black and white striped shtrings
+2024-10-22 23:31:20 - INFO - sentence(20-8): chari closest to camera
+2024-10-22 23:31:20 - INFO - sentence(20-9): full white couch
+2024-10-22 23:31:22 - INFO - sentence(21-0): Man blue 9:00
+2024-10-22 23:31:22 - INFO - sentence(21-1): 15
+2024-10-22 23:31:22 - INFO - sentence(21-2): blue guy near ball
+2024-10-22 23:31:22 - INFO - sentence(21-3): man in white facing us
+2024-10-22 23:31:22 - INFO - sentence(21-4): plate with maybe hummus
+2024-10-22 23:31:22 - INFO - sentence(21-5): bowl of broccoli
+2024-10-22 23:31:22 - INFO - sentence(21-6): the cow with the most white
+2024-10-22 23:31:22 - INFO - sentence(21-7): back half of cow
+2024-10-22 23:31:22 - INFO - sentence(21-8): boy
+2024-10-22 23:31:22 - INFO - sentence(21-9): woman
+2024-10-22 23:31:24 - INFO - sentence(22-0): Striped tie
+2024-10-22 23:31:24 - INFO - sentence(22-1): darker hair man
+2024-10-22 23:31:24 - INFO - sentence(22-2): the one furthest away from the camera
+2024-10-22 23:31:25 - INFO - sentence(22-3): skier red arm
+2024-10-22 23:31:25 - INFO - sentence(22-4): hand of adult
+2024-10-22 23:31:25 - INFO - sentence(22-5): child
+2024-10-22 23:31:25 - INFO - sentence(22-6): banana at eleven
+2024-10-22 23:31:25 - INFO - sentence(22-7): banana near spoon
+2024-10-22 23:31:25 - INFO - sentence(22-8): biggest banana piece near u
+2024-10-22 23:31:25 - INFO - sentence(22-9): blue item next to stripped sleeve
+2024-10-22 23:31:27 - INFO - sentence(23-0): blanket
+2024-10-22 23:31:27 - INFO - sentence(23-1): 193
+2024-10-22 23:31:27 - INFO - sentence(23-2): 68
+2024-10-22 23:31:27 - INFO - sentence(23-3): baby
+2024-10-22 23:31:27 - INFO - sentence(23-4): Standing giraffe
+2024-10-22 23:31:27 - INFO - sentence(23-5): black suit
+2024-10-22 23:31:27 - INFO - sentence(23-6): adult standing
+2024-10-22 23:31:28 - INFO - sentence(23-7): headless person at 1 o clock
+2024-10-22 23:31:28 - INFO - sentence(23-8): blurry man behind kid
+2024-10-22 23:31:28 - INFO - sentence(23-9): player
+2024-10-22 23:31:29 - INFO - sentence(24-0): arms coming in from out of the frame
+2024-10-22 23:31:30 - INFO - sentence(24-1): Woman in pink
+2024-10-22 23:31:30 - INFO - sentence(24-2): arm of person holding phone, white and red shirt
+2024-10-22 23:31:30 - INFO - sentence(24-3): plad shirt
+2024-10-22 23:31:30 - INFO - sentence(24-4): broccoli piece closest to camera
+2024-10-22 23:31:30 - INFO - sentence(24-5): dark broccoli
+2024-10-22 23:31:30 - INFO - sentence(24-6): 12:oo bunch of bananas
+2024-10-22 23:31:30 - INFO - sentence(24-7): baby feeding
+2024-10-22 23:31:30 - INFO - sentence(24-8): WOMANS THIGH
+2024-10-22 23:31:30 - INFO - sentence(24-9): girl
+2024-10-22 23:31:32 - INFO - sentence(25-0): white uniform, red letters
+2024-10-22 23:31:32 - INFO - sentence(25-1): pitcher
+2024-10-22 23:31:32 - INFO - sentence(25-2): man at head of table
+2024-10-22 23:31:32 - INFO - sentence(25-3): woman
+2024-10-22 23:31:32 - INFO - sentence(25-4): man with back to us
+2024-10-22 23:31:33 - INFO - sentence(25-5): The main person
+2024-10-22 23:31:33 - INFO - sentence(25-6): kid
+2024-10-22 23:31:33 - INFO - sentence(25-7): purple and black shirt
+2024-10-22 23:31:33 - INFO - sentence(25-8): sheep being petted
+2024-10-22 23:31:33 - INFO - sentence(25-9): catcher
+2024-10-22 23:31:35 - INFO - sentence(26-0): 19
+2024-10-22 23:31:35 - INFO - sentence(26-1): woman all black
+2024-10-22 23:31:35 - INFO - sentence(26-2): boy in blue under hand
+2024-10-22 23:31:35 - INFO - sentence(26-3): boy with no shirt on
+2024-10-22 23:31:35 - INFO - sentence(26-4): red  shirt and hat
+2024-10-22 23:31:35 - INFO - sentence(26-5): boy corner blue shirt
+2024-10-22 23:31:35 - INFO - sentence(26-6): white shirt between bare back and blue shirt
+2024-10-22 23:31:35 - INFO - sentence(26-7): woman in black tank and pinkish shirt
+2024-10-22 23:31:36 - INFO - sentence(26-8): LARGE PINK EMPTY CHAIR
+2024-10-22 23:31:36 - INFO - sentence(26-9): orange yellow seat
+2024-10-22 23:31:37 - INFO - sentence(27-0): guy with both hands visible
+2024-10-22 23:31:37 - INFO - sentence(27-1): woman in green
+2024-10-22 23:31:38 - INFO - sentence(27-2): yellow shirt
+2024-10-22 23:31:38 - INFO - sentence(27-3): guy sitting
+2024-10-22 23:31:38 - INFO - sentence(27-4): the woman
+2024-10-22 23:31:38 - INFO - sentence(27-5): younger lady
+2024-10-22 23:31:38 - INFO - sentence(27-6): blonde woman
+2024-10-22 23:31:38 - INFO - sentence(27-7): part of couch
+2024-10-22 23:31:38 - INFO - sentence(27-8): couch facing us
+2024-10-22 23:31:38 - INFO - sentence(27-9): white facing rocks
+2024-10-22 23:31:40 - INFO - sentence(28-0): black sheep
+2024-10-22 23:31:40 - INFO - sentence(28-1): looking down sheep
+2024-10-22 23:31:40 - INFO - sentence(28-2): glaesses younger
+2024-10-22 23:31:40 - INFO - sentence(28-3): laptop of the man that is smirking
+2024-10-22 23:31:40 - INFO - sentence(28-4): laptop on lap of man by window
+2024-10-22 23:31:41 - INFO - sentence(28-5): man looking down
+2024-10-22 23:31:41 - INFO - sentence(28-6): no glasses
+2024-10-22 23:31:41 - INFO - sentence(28-7): lighter colored cat
+2024-10-22 23:31:41 - INFO - sentence(28-8): closest cat
+2024-10-22 23:31:41 - INFO - sentence(28-9): girl with pink shirt
+2024-10-22 23:31:43 - INFO - sentence(29-0): Person in blue
+2024-10-22 23:31:43 - INFO - sentence(29-1): half of sandwich by the weird looking round thing
+2024-10-22 23:31:43 - INFO - sentence(29-2): The sandwich closest to the glass
+2024-10-22 23:31:43 - INFO - sentence(29-3): BROWN CUPCAKE
+2024-10-22 23:31:43 - INFO - sentence(29-4): full man closest to pilot
+2024-10-22 23:31:43 - INFO - sentence(29-5): man near back of plane
+2024-10-22 23:31:43 - INFO - sentence(29-6): piece closest to knife
+2024-10-22 23:31:43 - INFO - sentence(29-7): Peice by fork
+2024-10-22 23:31:43 - INFO - sentence(29-8): yellow shirt
+2024-10-22 23:31:44 - INFO - sentence(29-9): khaki shorts
+2024-10-22 23:31:45 - INFO - sentence(30-0): white shirt
+2024-10-22 23:31:45 - INFO - sentence(30-1): under question mark
+2024-10-22 23:31:45 - INFO - sentence(30-2): luggage with very written on it
+2024-10-22 23:31:46 - INFO - sentence(30-3): blue bag over small blue bag
+2024-10-22 23:31:46 - INFO - sentence(30-4): the open case next to the closed black one
+2024-10-22 23:31:46 - INFO - sentence(30-5): pink luggage tag
+2024-10-22 23:31:46 - INFO - sentence(30-6): catcher
+2024-10-22 23:31:46 - INFO - sentence(30-7): the batter
+2024-10-22 23:31:46 - INFO - sentence(30-8): broccoli near
+2024-10-22 23:31:46 - INFO - sentence(30-9): white jacket
+2024-10-22 23:31:48 - INFO - sentence(31-0): kid
+2024-10-22 23:31:48 - INFO - sentence(31-1): wooden shelf with green piece closest to little girl
+2024-10-22 23:31:48 - INFO - sentence(31-2): big table
+2024-10-22 23:31:48 - INFO - sentence(31-3): fat girl
+2024-10-22 23:31:48 - INFO - sentence(31-4): woman with glasses at 5:00
+2024-10-22 23:31:48 - INFO - sentence(31-5): cross legs
+2024-10-22 23:31:49 - INFO - sentence(31-6): man in white
+2024-10-22 23:31:49 - INFO - sentence(31-7): girl
+2024-10-22 23:31:49 - INFO - sentence(31-8): apple two
+2024-10-22 23:31:49 - INFO - sentence(31-9): dark apple
+2024-10-22 23:31:51 - INFO - sentence(32-0): apple no stem
+2024-10-22 23:31:51 - INFO - sentence(32-1): smaller sandwich
+2024-10-22 23:31:51 - INFO - sentence(32-2): highest sandwich
+2024-10-22 23:31:51 - INFO - sentence(32-3): dark glass next to bottles
+2024-10-22 23:31:51 - INFO - sentence(32-4): half hidden glass in a row
+2024-10-22 23:31:51 - INFO - sentence(32-5): glass between all others
+2024-10-22 23:31:51 - INFO - sentence(32-6): 3rd glass closest to you
+2024-10-22 23:31:51 - INFO - sentence(32-7): glass number 2 from us
+2024-10-22 23:31:51 - INFO - sentence(32-8): nearest glass
+2024-10-22 23:31:52 - INFO - sentence(32-9): grey shirt
+2024-10-22 23:31:53 - INFO - sentence(33-0): black shirt
+2024-10-22 23:31:53 - INFO - sentence(33-1): pink dress
+2024-10-22 23:31:53 - INFO - sentence(33-2): man
+2024-10-22 23:31:53 - INFO - sentence(33-3): black dress
+2024-10-22 23:31:54 - INFO - sentence(33-4): gold tie
+2024-10-22 23:31:54 - INFO - sentence(33-5): flowers in their hair
+2024-10-22 23:31:54 - INFO - sentence(33-6): BIRD CLOSEST TO US
+2024-10-22 23:31:54 - INFO - sentence(33-7): 3:00 bird
+2024-10-22 23:31:54 - INFO - sentence(33-8): bird with yellow beak
+2024-10-22 23:31:54 - INFO - sentence(33-9): bird looking up body hidden by other bird
+2024-10-22 23:31:56 - INFO - sentence(34-0): leaf between oranges and tomatoes
+2024-10-22 23:31:56 - INFO - sentence(34-1): western orange
+2024-10-22 23:31:56 - INFO - sentence(34-2): lower horse
+2024-10-22 23:31:56 - INFO - sentence(34-3): horse not fully visible
+2024-10-22 23:31:56 - INFO - sentence(34-4): arm
+2024-10-22 23:31:56 - INFO - sentence(34-5): orange at 8:00
+2024-10-22 23:31:56 - INFO - sentence(34-6): orange nearest you
+2024-10-22 23:31:56 - INFO - sentence(34-7): white horse
+2024-10-22 23:31:57 - INFO - sentence(34-8): black horse
+2024-10-22 23:31:57 - INFO - sentence(34-9): person in white jacket
+2024-10-22 23:31:58 - INFO - sentence(35-0): bus with white sign
+2024-10-22 23:31:58 - INFO - sentence(35-1): happy couple bus
+2024-10-22 23:31:59 - INFO - sentence(35-2): white car hood
+2024-10-22 23:31:59 - INFO - sentence(35-3): black suv
+2024-10-22 23:31:59 - INFO - sentence(35-4): bear wearing black cape
+2024-10-22 23:31:59 - INFO - sentence(35-5): white bear
+2024-10-22 23:31:59 - INFO - sentence(35-6): BEAR WITH WHITE BOW
+2024-10-22 23:31:59 - INFO - sentence(35-7): white cat closest to pillow
+2024-10-22 23:31:59 - INFO - sentence(35-8): white cat facing straight forward
+2024-10-22 23:31:59 - INFO - sentence(35-9): black and white cat
+2024-10-22 23:32:01 - INFO - sentence(36-0): orange cat
+2024-10-22 23:32:01 - INFO - sentence(36-1): cut off cup
+2024-10-22 23:32:01 - INFO - sentence(36-2): cup below one
+2024-10-22 23:32:01 - INFO - sentence(36-3): upper cup with flower
+2024-10-22 23:32:01 - INFO - sentence(36-4): white sofa with two throwpillows
+2024-10-22 23:32:01 - INFO - sentence(36-5): Brown couch with round pillow.
+2024-10-22 23:32:02 - INFO - sentence(36-6): pizza with red toppings
+2024-10-22 23:32:02 - INFO - sentence(36-7): Closest pizza
+2024-10-22 23:32:02 - INFO - sentence(36-8): pie
+2024-10-22 23:32:02 - INFO - sentence(36-9): powdered  cake alone
+2024-10-22 23:32:04 - INFO - sentence(37-0): the two apples closest to the bowl
+2024-10-22 23:32:04 - INFO - sentence(37-1): green apple
+2024-10-22 23:32:04 - INFO - sentence(37-2): red apple touching green apple
+2024-10-22 23:32:04 - INFO - sentence(37-3): tank
+2024-10-22 23:32:04 - INFO - sentence(37-4): boy that doesn't have bread hanging out of his mouth
+2024-10-22 23:32:04 - INFO - sentence(37-5): child in black
+2024-10-22 23:32:04 - INFO - sentence(37-6): big guy
+2024-10-22 23:32:04 - INFO - sentence(37-7): mug next to saucer
+2024-10-22 23:32:04 - INFO - sentence(37-8): cup with saucer
+2024-10-22 23:32:04 - INFO - sentence(37-9): flower dress
+2024-10-22 23:32:06 - INFO - sentence(38-0): the girl stand in last
+2024-10-22 23:32:06 - INFO - sentence(38-1): cream armchair
+2024-10-22 23:32:06 - INFO - sentence(38-2): SOFA BY LIGHT THATS ON
+2024-10-22 23:32:06 - INFO - sentence(38-3): sitting on couch
+2024-10-22 23:32:07 - INFO - sentence(38-4): person standing in back
+2024-10-22 23:32:07 - INFO - sentence(38-5): man
+2024-10-22 23:32:07 - INFO - sentence(38-6): red jacket
+2024-10-22 23:32:07 - INFO - sentence(38-7): black jacket halfway out of pic
+2024-10-22 23:32:07 - INFO - sentence(38-8): person in yellow shirt
+2024-10-22 23:32:07 - INFO - sentence(38-9): BRUNETTE
+2024-10-22 23:32:09 - INFO - sentence(39-0): blue hat girl
+2024-10-22 23:32:09 - INFO - sentence(39-1): giraffe without visible head
+2024-10-22 23:32:09 - INFO - sentence(39-2): giraffe facing camera
+2024-10-22 23:32:09 - INFO - sentence(39-3): umpire
+2024-10-22 23:32:09 - INFO - sentence(39-4): blue hat binding down
+2024-10-22 23:32:09 - INFO - sentence(39-5): batter
+2024-10-22 23:32:09 - INFO - sentence(39-6): the sub we can see most of two meatballs in
+2024-10-22 23:32:09 - INFO - sentence(39-7): pice of sandwhich with one meatball showing
+2024-10-22 23:32:09 - INFO - sentence(39-8): white jacket
+2024-10-22 23:32:10 - INFO - sentence(39-9): hotdog hog
+2024-10-22 23:32:11 - INFO - sentence(40-0): white surface 2at 2 close to edge
+2024-10-22 23:32:11 - INFO - sentence(40-1): long sandwich
+2024-10-22 23:32:11 - INFO - sentence(40-2): round sandwich
+2024-10-22 23:32:12 - INFO - sentence(40-3): green vase
+2024-10-22 23:32:12 - INFO - sentence(40-4): The dark colored vase
+2024-10-22 23:32:12 - INFO - sentence(40-5): tallest vase near the tiny one
+2024-10-22 23:32:12 - INFO - sentence(40-6): vase closest to us with mushroom tree thing
+2024-10-22 23:32:12 - INFO - sentence(40-7): farther sandwich
+2024-10-22 23:32:12 - INFO - sentence(40-8): sandwich closest to us
+2024-10-22 23:32:12 - INFO - sentence(40-9): stripe shirt
+2024-10-22 23:32:14 - INFO - sentence(41-0): Person in checkerd  shirt
+2024-10-22 23:32:14 - INFO - sentence(41-1): woman in tanktop cut off screen
+2024-10-22 23:32:14 - INFO - sentence(41-2): little girl
+2024-10-22 23:32:14 - INFO - sentence(41-3): the plant with the lime
+2024-10-22 23:32:14 - INFO - sentence(41-4): purple veggies
+2024-10-22 23:32:14 - INFO - sentence(41-5): man in black shirt and white pants
+2024-10-22 23:32:14 - INFO - sentence(41-6): boy stooping over
+2024-10-22 23:32:15 - INFO - sentence(41-7): the elephant not looking at us
+2024-10-22 23:32:15 - INFO - sentence(41-8): elephant
+2024-10-22 23:32:15 - INFO - sentence(41-9): farthest train
+2024-10-22 23:32:16 - INFO - sentence(42-0): train closest to viewer
+2024-10-22 23:32:17 - INFO - sentence(42-1): boy
+2024-10-22 23:32:17 - INFO - sentence(42-2): woman
+2024-10-22 23:32:17 - INFO - sentence(42-3): far woman
+2024-10-22 23:32:17 - INFO - sentence(42-4): one holding dog
+2024-10-22 23:32:17 - INFO - sentence(42-5): orange next to orange with circle
+2024-10-22 23:32:17 - INFO - sentence(42-6): lowest orange without navel
+2024-10-22 23:32:17 - INFO - sentence(42-7): MID ORANGE RIGHTIEST
+2024-10-22 23:32:17 - INFO - sentence(42-8): white microwave
+2024-10-22 23:32:17 - INFO - sentence(42-9): microwav
+2024-10-22 23:32:19 - INFO - sentence(43-0): Not holding a cup
+2024-10-22 23:32:19 - INFO - sentence(43-1): him
+2024-10-22 23:32:20 - INFO - sentence(43-2): chocalate sprinkled donut at 7:00
+2024-10-22 23:32:20 - INFO - sentence(43-3): low centered light donut
+2024-10-22 23:32:20 - INFO - sentence(43-4): half cut off donut at 9
+2024-10-22 23:32:20 - INFO - sentence(43-5): CAKE AT CONNER
+2024-10-22 23:32:20 - INFO - sentence(43-6): donut third row at 12 o clock
+2024-10-22 23:32:20 - INFO - sentence(43-7): carmel colored doughnut below the text
+2024-10-22 23:32:21 - INFO - Test result: mean IoU =  63.16
+2024-10-22 23:32:21 - INFO - Test result: overall IoU =  64.10
+--- done ---
+Tue Oct 22 23:32:23 AEDT 2024

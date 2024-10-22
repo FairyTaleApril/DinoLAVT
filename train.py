@@ -36,28 +36,15 @@ def get_dataset(args, image_set, image_transform, target_transforms):
 
 def test(args, model, bert_model, crit, data_loader, device):
     model.eval()
+    os.makedirs('test_output/img', exist_ok=True)
 
     with open(args.print_dir + '/test_loss.txt', 'w') as f:
         loss, num = 0.0, 0
         cum_I, cum_U = 0.0, 0.0
         mean_IoU = []
         for i, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
-            imgs, tokens, targets, sentences, attentions = next_data
+            imgs, tokens, targets, raw_sentence, sentences, attentions = next_data
 
-            numpy_imgs = imgs.cpu().permute(0, 2, 3, 1).numpy()
-            for j in range(len(numpy_imgs)):
-                numpy_img = numpy_imgs[j]
-                numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
-                ori_img = Image.fromarray(numpy_img)
-                ori_img.save(f'output/img/ori_img{i}-{j}.jpg')
-                # ori_img.show()
-
-            numpy_targets = targets.numpy()
-            for j in range(len(numpy_targets)):
-                numpy_target = ((numpy_targets[j] + 1) * 127.5).astype(np.uint8)
-                target_img = Image.fromarray(numpy_target)
-                target_img.save(f'output/img/target_img{i}-{j}.jpg')
-                # target_img.show()
 
             imgs = imgs.to(device, non_blocking=True)
             tokens = tokens.to(device, non_blocking=True)
@@ -78,11 +65,36 @@ def test(args, model, bert_model, crit, data_loader, device):
             num += 1
 
             numpy_outputs = output.cpu().argmax(1).data.numpy()
+            numpy_imgs = imgs.cpu().permute(0, 2, 3, 1).numpy()
+            numpy_targets = targets.cpu().numpy()
             for j in range(len(numpy_outputs)):
+                numpy_img = numpy_imgs[j]
+                numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
+                ori_img = Image.fromarray(numpy_img)
+                ori_img.save(f'test_output/img/{i}-{j}-ori_img.jpg')
+                # ori_img.show()
+
                 numpy_output = (numpy_outputs[j] * 255.0).astype(np.uint8)
                 output_img = Image.fromarray(numpy_output)
-                output_img.save(f'output/img/output_img{i}-{j}.jpg')
+                output_img.save(f'test_output/img/{i}-{j}-output_img.jpg')
                 # output_img.show()
+
+                numpy_target = ((numpy_targets[j] + 1) * 127.5).astype(np.uint8)
+                target_img = Image.fromarray(numpy_target)
+                target_img.save(f'test_output/img/{i}-{j}-target_img.jpg')
+                # target_img.show()
+
+                our_output = numpy_outputs[j].astype(np.uint8)
+                our_vis = util.overlay_davis(numpy_img, our_output)
+                our_vis = Image.fromarray(our_vis)
+                our_vis.save(f'test_output/img/{i}-{j}-our_masked_img.jpg')
+
+                target_output = numpy_targets[j].astype(np.uint8)
+                target_vis = util.overlay_davis(numpy_img, target_output)
+                target_vis = Image.fromarray(target_vis)
+                target_vis.save(f'test_output/img/{i}-{j}-target_masked_img.jpg')
+
+                info(f'sentence({i}-{j}): {raw_sentence[j]}')
 
             I, U = util.computeIoU(numpy_outputs, numpy_targets)
             this_iou = 0.0 if U == 0 else I * 1.0 / U
@@ -108,7 +120,7 @@ def train_one_epoch(epoch, model, bert_model, crit, optimizer, data_loader, devi
 
     loss, num = 0.0, 0
     for _, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
-        imgs, tokens, targets, sentences, attentions = next_data
+        imgs, tokens, targets, _, sentences, attentions = next_data
 
         imgs = imgs.to(device, non_blocking=True)
         tokens = tokens.to(device, non_blocking=True)
@@ -171,8 +183,8 @@ def main():
     test_dl = data.DataLoader(
         test_ds,
         batch_size=args.batch_size,
-        shuffle=args.drop_shuffle,
-        drop_last=args.drop_shuffle,
+        shuffle=False,
+        drop_last=False,
         pin_memory=args.pin_mem,
         num_workers=int(args.num_workers))
 
@@ -238,11 +250,12 @@ def load_test(pth=None):
         transforms.ToTensor()
     ])
     test_ds = get_dataset(args, "test", image_transform=image_transform, target_transforms=target_transforms)
+    # test_ds = get_dataset(args, "train", image_transform=image_transform, target_transforms=target_transforms)
     test_dl = data.DataLoader(
         test_ds,
         batch_size=args.batch_size,
-        shuffle=args.drop_shuffle,
-        drop_last=args.drop_shuffle,
+        shuffle=False,
+        drop_last=False,
         pin_memory=args.pin_mem,
         num_workers=int(args.num_workers))
 
@@ -259,6 +272,10 @@ def load_test(pth=None):
 
 
 if __name__ == '__main__':
-    main()
+    args = get_args_parser()
+    if args.eval:
+        load_test()
+    else:
+        main()
     # load_test('output/dinov2 40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')
     # load_test('output/ckpt/lavt_base_5.pth')
