@@ -1,0 +1,10 @@
+in_chans: 3
+depths: [2,2,2,2,2]
+num_heads: [3,3,3,3,3]
+drop_rate: 0.0
+drop_path_rate: 0.2
+num_heads_fusion: [1,1,1,1,1]
+mlp_ratio: 4.0
+proj_drop: 0.0
+attn_drop: 0.0
+fusion_drop: 0.0
