@@ -7,9 +7,9 @@ from models.pwam import PWAM
 
 
 class LAVTEncoder(nn.Module):
-    def __init__(self, config, layer_id, drop_path, norm_layer):
+    def __init__(self, args, config, layer_id, drop_path, norm_layer):
         super().__init__()
-        self.dim = int(config.token_size * 2 ** layer_id)
+        self.dim = int(args.img_token_size * 2 ** layer_id)
         self.vit_blocks = nn.ModuleList([
             Block(self.dim, config.num_heads[layer_id], config.mlp_ratio, qkv_bias=True,
                   proj_drop=config.proj_drop, attn_drop=config.attn_drop,

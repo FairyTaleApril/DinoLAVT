@@ -53,11 +53,11 @@ def test(model, bert_model, data_loader, device):
             target_img.save(f'output/img/target_img{i}-{j}.jpg')
             # target_img.show()
 
+        img = img.to(device, non_blocking=True)
         token = token.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
         sentences = sentences.to(device, non_blocking=True)
         attentions = attentions.to(device, non_blocking=True)
-        img = img.to(device, non_blocking=True)
         sentences = sentences.squeeze(1)
         attentions = attentions.squeeze(1)
 
@@ -86,11 +86,11 @@ def train_one_epoch(model, bert_model, crit, optimizer, data_loader: data.DataLo
     for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Training LAVT..."):
         img, token, target, sentences, attentions = data
 
+        img = img.to(device, non_blocking=True)
         token = token.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
         sentences = sentences.to(device, non_blocking=True)
         attentions = attentions.to(device, non_blocking=True)
-        img = img.to(device, non_blocking=True)
         sentences = sentences.squeeze(1)
         attentions = attentions.squeeze(1)
 

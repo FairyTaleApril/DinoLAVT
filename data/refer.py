@@ -45,6 +45,8 @@ class REFER:
         # also provide dataset name and splitBy information
         # e.g., dataset = 'refcoco', splitBy = 'unc'
         print('Loading dataset %s into memory...' % dataset)
+        tic = time.time()
+
         self.DATA_DIR = osp.join(ref_root, dataset)
         self.IMAGE_DIR = img_dir
         self.data = {}
@@ -63,8 +65,6 @@ class REFER:
         self.catToRefs = {}
         self.sentToRef = {}
         self.sentToTokens = {}
-
-        tic = time.time()
 
         # Load refs from data/dataset/refs(splitBy).p
         ref_file_path = osp.join(self.DATA_DIR, 'refs(' + splitBy + ').p')
@@ -99,8 +99,6 @@ class REFER:
         # 10) catToRefs: 	{category_id: refs}
         # 11) sentToRef: 	{sent_id: ref}
         # 12) sentToTokens: {sent_id: tokens}
-        print('Creating index...')
-
         for ref in self.data['refs']:
             image_id = ref['image_id']
             if image_id not in self.kept_image_ids:
@@ -138,8 +136,6 @@ class REFER:
 
         for ref in self.kept_ref:
             self.refToAnn[ref['ref_id']] = self.Anns[ref['ann_id']]
-
-        print('Index created.')
 
     def getRefIds(self, image_ids=None, cat_ids=None, ref_ids=None, split=''):
         image_ids = [] if image_ids is None else image_ids
