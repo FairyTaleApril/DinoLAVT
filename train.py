@@ -255,5 +255,5 @@ def load_test(pth=None):
 
 
 if __name__ == '__main__':
-    # main()
-    load_test('output/lavt_base_40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')
+    main()
+    # load_test('output/lavt_base_40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')
