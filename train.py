@@ -69,7 +69,8 @@ def test(args, model, bert_model, crit, data_loader, device):
             embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
             attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-            output = model(tokens, embedding, attentions, imgs)
+            with torch.no_grad():
+                output = model(tokens, embedding, attentions, imgs)
 
             loss = crit(output, targets, device)
             f.write(f"Test {i} loss: {loss}\n")
