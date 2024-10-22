@@ -70,7 +70,7 @@ def test(args, model, bert_model, crit, data_loader, device):
             attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
             with torch.no_grad():
-                output = model(tokens, embedding, attentions, imgs)
+                output = model(imgs, tokens, embedding, attentions)
 
             loss = crit(output, targets, device)
             f.write(f"Test {i} loss: {loss}\n")
@@ -97,11 +97,11 @@ def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader
     with open(args.print_dir + '/train_loss.txt', 'w') as f:
         loss, num = 0.0, 0
         for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
-            img, token, target, sentences, attentions = data
+            imgs, tokens, targets, sentences, attentions = data
 
-            img = img.to(device, non_blocking=True)
-            token = token.to(device, non_blocking=True)
-            target = target.to(device, non_blocking=True)
+            imgs = imgs.to(device, non_blocking=True)
+            tokens = tokens.to(device, non_blocking=True)
+            targets = targets.to(device, non_blocking=True)
             sentences = sentences.to(device, non_blocking=True)
             attentions = attentions.to(device, non_blocking=True)
             sentences = sentences.squeeze(1)
@@ -111,9 +111,9 @@ def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader
             embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
             attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-            output = model(token, embedding, attentions, img)
+            output = model(imgs, tokens, embedding, attentions)
 
-            loss = crit(output, target, device)
+            loss = crit(output, targets, device)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

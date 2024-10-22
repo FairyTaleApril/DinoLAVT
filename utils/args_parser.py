@@ -4,9 +4,9 @@ import argparse
 def get_args_parser():
     parser = argparse.ArgumentParser('LAVT with Dino', add_help=False)
 
-    parser.add_argument('--batch_size', default=10, type=int, help='Batch size per GPU')
+    parser.add_argument('--batch_size', default=2, type=int, help='Batch size per GPU')
     parser.add_argument('--start_epoch', default=1, type=int, help='Start training epoch')
-    parser.add_argument('--epochs', default=40, type=int, help='Total training epochs')
+    parser.add_argument('--epochs', default=1, type=int, help='Total training epochs')
     parser.add_argument('--save_freq', default=20, type=int, help='Saving model frequency(epoch)')
     # parser.add_argument('--eval_freq', default=40, type=int, help='Evaluation frequency(epoch)')
     parser.add_argument('--tb_dir', default='output/tb', type=str, help='Directory of tensorboard log')
@@ -14,7 +14,7 @@ def get_args_parser():
     parser.add_argument('--device', default='cuda', help='Device to use for training / testing')
 
     # Dataset parameters
-    parser.add_argument('--max_image_num', default=200, type=int, help='Number of images for training')
+    parser.add_argument('--max_image_num', default=2, type=int, help='Number of images for training')
     parser.add_argument('--data_dir', default='data', type=str, help='Directory of dataset')
     parser.add_argument('--img_dir', default=r'E:\ANU\train2014\train2014', type=str, help='Directory of images')
     parser.add_argument('--img_size', default=480, type=int, help='Input image size')

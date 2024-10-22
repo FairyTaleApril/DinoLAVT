@@ -30,7 +30,7 @@ class Lavt(nn.Module):
 
         self.patch_embed = PatchEmbed() if self.img_embed_model == 'patch_embed' else None
 
-    def forward(self, x, l, l_mask, img):
+    def forward(self, img, x, l, l_mask):
         if self.img_embed_model == 'patch_embed':
             x = self.patch_embed(img)
         Wh, Ww = x.size(2), x.size(3)
