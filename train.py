@@ -37,27 +37,29 @@ def get_dataset(args, image_set, image_transform, target_transforms):
 def test(args, model, bert_model, crit, data_loader, device):
     model.eval()
 
-    with open(args.print_dir + 'test_loss.txt', 'w') as f:
+    with open(args.print_dir + '/test_loss.txt', 'w') as f:
         loss, num = 0.0, 0
         for i, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
-            img, token, target, sentences, attentions = data
+            imgs, tokens, targets, sentences, attentions = data
 
-            numpy_img = img.cpu()[0].permute(1, 2, 0).numpy()
-            numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
-            ori_img = Image.fromarray(numpy_img)
-            ori_img.save(f'output/img/output_image{i}.jpg')
-            # ori_img.show()
+            numpy_imgs = imgs.cpu()[0].permute(1, 2, 0).numpy()
+            for j in range(len(numpy_imgs)):
+                numpy_img = numpy_imgs[j]
+                numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
+                ori_img = Image.fromarray(numpy_img)
+                ori_img.save(f'output/img/output_image{i}-{j}.jpg')
+                # ori_img.show()
 
-            numpy_targets = target.numpy()
+            numpy_targets = targets.numpy()
             for j in range(len(numpy_targets)):
                 numpy_target = ((numpy_targets[j] + 1) * 127.5).astype(np.uint8)
                 target_img = Image.fromarray(numpy_target)
                 target_img.save(f'output/img/target_img{i}-{j}.jpg')
                 # target_img.show()
 
-            img = img.to(device, non_blocking=True)
-            token = token.to(device, non_blocking=True)
-            target = target.to(device, non_blocking=True)
+            imgs = imgs.to(device, non_blocking=True)
+            tokens = tokens.to(device, non_blocking=True)
+            targets = targets.to(device, non_blocking=True)
             sentences = sentences.to(device, non_blocking=True)
             attentions = attentions.to(device, non_blocking=True)
             sentences = sentences.squeeze(1)
@@ -67,9 +69,9 @@ def test(args, model, bert_model, crit, data_loader, device):
             embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
             attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-            output = model(token, embedding, attentions, img)
+            output = model(tokens, embedding, attentions, imgs)
 
-            loss = crit(output, target, device)
+            loss = crit(output, targets, device)
             f.write(f"Test {i} loss: {loss}\n")
             loss += loss.item()
             num += 1
@@ -91,7 +93,7 @@ def test(args, model, bert_model, crit, data_loader, device):
 def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
     model.train()
 
-    with open(args.print_dir + 'train_loss.txt', 'w') as f:
+    with open(args.print_dir + '/train_loss.txt', 'w') as f:
         loss, num = 0.0, 0
         for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
             img, token, target, sentences, attentions = data
@@ -130,6 +132,7 @@ def main():
     args = get_args_parser()
     os.makedirs(args.ckpt_output_dir, exist_ok=True)
     os.makedirs(args.img_output_dir, exist_ok=True)
+    os.makedirs(args.print_dir, exist_ok=True)
     device = args.device
 
     Logger(args)
