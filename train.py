@@ -103,39 +103,37 @@ def test(args, model, bert_model, crit, data_loader, device):
         f.write(f'Overall IoU = {cum_I * 100. / cum_U: .2f}\n')
 
 
-def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
+def train_one_epoch(epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
     model.train()
 
-    with open(args.print_dir + '/train_loss.txt', 'w') as f:
-        loss, num = 0.0, 0
-        for _, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
-            imgs, tokens, targets, sentences, attentions = data
+    loss, num = 0.0, 0
+    for _, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
+        imgs, tokens, targets, sentences, attentions = data
 
-            imgs = imgs.to(device, non_blocking=True)
-            tokens = tokens.to(device, non_blocking=True)
-            targets = targets.to(device, non_blocking=True)
-            sentences = sentences.to(device, non_blocking=True).squeeze(1)
-            attentions = attentions.to(device, non_blocking=True).squeeze(1)
+        imgs = imgs.to(device, non_blocking=True)
+        tokens = tokens.to(device, non_blocking=True)
+        targets = targets.to(device, non_blocking=True)
+        sentences = sentences.to(device, non_blocking=True).squeeze(1)
+        attentions = attentions.to(device, non_blocking=True).squeeze(1)
 
-            last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
-            embeddings = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
-            attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
+        last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
+        embeddings = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
+        attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-            output = model(imgs, tokens, embeddings, attentions)
+        output = model(imgs, tokens, embeddings, attentions)
 
-            loss = crit(output, targets, device)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        loss = crit(output, targets, device)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            loss += loss.item()
-            num += 1
+        loss += loss.item()
+        num += 1
 
-            gc.collect()
-            torch.cuda.empty_cache()
+        gc.collect()
+        torch.cuda.empty_cache()
 
-        loss = loss / num
-        f.write(f"Train {epoch} loss: {loss}\n")
+    loss = loss / num
     return {'train_loss': loss}
 
 
@@ -190,7 +188,7 @@ def main():
     info(f"Start training for {args.epochs} epochs")
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs + 1):
-        train_info = train_one_epoch(args, epoch, model, bert_model, criterion, optimizer, train_dl, device)
+        train_info = train_one_epoch(epoch, model, bert_model, criterion, optimizer, train_dl, device)
         for k, v in train_info.items():
             if tb_writer is not None:
                 tb_writer.add_scalar(k, v, epoch)
