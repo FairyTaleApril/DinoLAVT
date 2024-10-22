@@ -179,7 +179,6 @@ def main():
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs + 1):
         train_info = train_one_epoch(args, epoch, model, bert_model, criterion, optimizer, train_dl, device)
-        info(f'Train info:')
         for k, v in train_info.items():
             if tb_writer is not None:
                 tb_writer.add_scalar(k, v, epoch)
