@@ -96,12 +96,11 @@ def test(args, model, bert_model, crit, data_loader, device):
         loss = loss / num
         f.write(f"Total test loss: {loss}\n")
 
-        mean_IoU = np.array(mean_IoU)
-        mIoU = np.mean(mean_IoU)
+        mIoU = np.mean(np.array(mean_IoU))
         info(f'Test result: mean IoU = {mIoU * 100.: .2f}')
         info(f'Test result: overall IoU = {cum_I * 100. / cum_U: .2f}')
-        f.write(f'Mean IoU = {mIoU * 100.: .2f}')
-        f.write(f'Overall IoU = {cum_I * 100. / cum_U: .2f}')
+        f.write(f'Mean IoU = {mIoU * 100.: .2f}\n')
+        f.write(f'Overall IoU = {cum_I * 100. / cum_U: .2f}\n')
 
 
 def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
@@ -255,5 +254,5 @@ def load_test(pth=None):
 
 
 if __name__ == '__main__':
-    main()
-    # load_test('output/lavt_base_40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')
+    # main()
+    load_test('output/lavt_base_40 depths[2,2,2] num_heads[3,3,3] num_heads_fusion[1,1,1]/ckpt/lavt_base_40.pth')
