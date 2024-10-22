@@ -38,6 +38,7 @@ def get_args_parser():
     parser.add_argument('--ckpt', type=str, default=None, help='Where to load model checkpoint')
     parser.add_argument('--ckpt_output_dir', type=str, default='output/ckpt', help='Where to save checkpoint')
     parser.add_argument('--img_output_dir', type=str, default='output/img', help='Where to save imgs')
+    parser.add_argument('--print_dir', type=str, default='output/print', help='Where to save printed info')
     parser.add_argument('--grad_checkpointing', action='store_true')
     parser.add_argument('--lr', type=float, default=0.00005, metavar='LR', help='Learning rate (absolute lr)')
 

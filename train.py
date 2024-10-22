@@ -4,6 +4,9 @@ import os
 import time
 import warnings
 
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -20,9 +23,6 @@ from models.lavt import Lavt
 from utils.args_parser import get_args_parser
 from utils.logger import info, Logger
 
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
-
 
 def criterion(inputs, target, device):
     weight = torch.FloatTensor([0.9, 1.1]).to(device)
@@ -34,84 +34,96 @@ def get_dataset(args, image_set, image_transform, target_transforms):
     return ds
 
 
-def test(model, bert_model, data_loader, device):
+def test(args, model, bert_model, crit, data_loader, device):
     model.eval()
 
-    for i, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
-        img, token, target, sentences, attentions = data
+    with open(args.print_dir + 'test_loss.txt', 'w') as f:
+        loss, num = 0.0, 0
+        for i, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
+            img, token, target, sentences, attentions = data
 
-        numpy_img = img.cpu()[0].permute(1, 2, 0).numpy()
-        numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
-        ori_img = Image.fromarray(numpy_img)
-        ori_img.save(f'output/img/output_image{i}.jpg')
-        # ori_img.show()
+            numpy_img = img.cpu()[0].permute(1, 2, 0).numpy()
+            numpy_img = ((numpy_img - numpy_img.min()) / (numpy_img.max() - numpy_img.min()) * 255).astype(np.uint8)
+            ori_img = Image.fromarray(numpy_img)
+            ori_img.save(f'output/img/output_image{i}.jpg')
+            # ori_img.show()
 
-        numpy_targets = target.numpy()
-        for j in range(len(numpy_targets)):
-            numpy_target = ((numpy_targets[j] + 1) * 127.5).astype(np.uint8)
-            target_img = Image.fromarray(numpy_target)
-            target_img.save(f'output/img/target_img{i}-{j}.jpg')
-            # target_img.show()
+            numpy_targets = target.numpy()
+            for j in range(len(numpy_targets)):
+                numpy_target = ((numpy_targets[j] + 1) * 127.5).astype(np.uint8)
+                target_img = Image.fromarray(numpy_target)
+                target_img.save(f'output/img/target_img{i}-{j}.jpg')
+                # target_img.show()
 
-        img = img.to(device, non_blocking=True)
-        token = token.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
-        sentences = sentences.to(device, non_blocking=True)
-        attentions = attentions.to(device, non_blocking=True)
-        sentences = sentences.squeeze(1)
-        attentions = attentions.squeeze(1)
+            img = img.to(device, non_blocking=True)
+            token = token.to(device, non_blocking=True)
+            target = target.to(device, non_blocking=True)
+            sentences = sentences.to(device, non_blocking=True)
+            attentions = attentions.to(device, non_blocking=True)
+            sentences = sentences.squeeze(1)
+            attentions = attentions.squeeze(1)
 
-        last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
-        embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
-        attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
+            last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
+            embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
+            attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-        output = model(token, embedding, attentions, img)
+            output = model(token, embedding, attentions, img)
 
-        numpy_outputs = output.cpu().argmax(1).data.numpy()
-        for j in range(len(numpy_outputs)):
-            numpy_output = (numpy_outputs[j] * 255.0).astype(np.uint8)
-            output_img = Image.fromarray(numpy_output)
-            output_img.save(f'output/img/output_img{i}-{j}.jpg')
-            # output_img.show()
+            loss = crit(output, target, device)
+            f.write(f"Test {i} loss: {loss}\n")
+            loss += loss.item()
+            num += 1
 
-        gc.collect()
-        torch.cuda.empty_cache()
+            numpy_outputs = output.cpu().argmax(1).data.numpy()
+            for j in range(len(numpy_outputs)):
+                numpy_output = (numpy_outputs[j] * 255.0).astype(np.uint8)
+                output_img = Image.fromarray(numpy_output)
+                output_img.save(f'output/img/output_img{i}-{j}.jpg')
+                # output_img.show()
+
+            gc.collect()
+            torch.cuda.empty_cache()
+
+        loss = loss / num
+        f.write(f"Total test loss: {loss}\n")
 
 
-def train_one_epoch(model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
+def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
     model.train()
 
-    loss = 0.0
-    i = 0
-    for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Training LAVT..."):
-        img, token, target, sentences, attentions = data
+    with open(args.print_dir + 'train_loss.txt', 'w') as f:
+        loss, num = 0.0, 0
+        for _, data in tqdm(enumerate(data_loader), total=len(data_loader), desc=f"Training epoch {epoch}"):
+            img, token, target, sentences, attentions = data
 
-        img = img.to(device, non_blocking=True)
-        token = token.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
-        sentences = sentences.to(device, non_blocking=True)
-        attentions = attentions.to(device, non_blocking=True)
-        sentences = sentences.squeeze(1)
-        attentions = attentions.squeeze(1)
+            img = img.to(device, non_blocking=True)
+            token = token.to(device, non_blocking=True)
+            target = target.to(device, non_blocking=True)
+            sentences = sentences.to(device, non_blocking=True)
+            attentions = attentions.to(device, non_blocking=True)
+            sentences = sentences.squeeze(1)
+            attentions = attentions.squeeze(1)
 
-        last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
-        embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
-        attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
+            last_hidden_states = bert_model(sentences, attention_mask=attentions)[0]  # (6, 10, 768)
+            embedding = last_hidden_states.permute(0, 2, 1)  # (B, 768, N_l) to make Conv1d happy
+            attentions = attentions.unsqueeze(dim=-1)  # (batch, N_l, 1)
 
-        output = model(token, embedding, attentions, img)
+            output = model(token, embedding, attentions, img)
 
-        loss = crit(output, target, device)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            loss = crit(output, target, device)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        loss += loss.item()
-        i += 1
+            loss += loss.item()
+            num += 1
 
-        gc.collect()
-        torch.cuda.empty_cache()
+            gc.collect()
+            torch.cuda.empty_cache()
 
-    return {'train_loss': loss / i}
+        loss = loss / num
+        f.write(f"Train {epoch} loss: {loss}\n")
+    return {'train_loss': loss}
 
 
 def main():
@@ -163,9 +175,7 @@ def main():
     info(f"Start training for {args.epochs} epochs")
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs + 1):
-        info(f"Now epoch: {epoch}")
-
-        train_info = train_one_epoch(model, bert_model, criterion, optimizer, train_dl, device)
+        train_info = train_one_epoch(args, epoch, model, bert_model, criterion, optimizer, train_dl, device)
         info(f'Train info:')
         for k, v in train_info.items():
             if tb_writer is not None:
@@ -186,7 +196,7 @@ def main():
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     info(f'Training time {total_time_str}')
 
-    test(model, bert_model, train_dl, device)
+    test(args, model, bert_model, criterion, train_dl, device)
 
 
 if __name__ == '__main__':
