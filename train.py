@@ -41,8 +41,8 @@ def test(args, model, bert_model, crit, data_loader, device):
         loss, num = 0.0, 0
         cum_I, cum_U = 0.0, 0.0
         mean_IoU = []
-        for i, data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
-            imgs, tokens, targets, sentences, attentions = data
+        for i, next_data in tqdm(enumerate(data_loader), total=len(data_loader), desc="Testing LAVT..."):
+            imgs, tokens, targets, sentences, attentions = next_data
 
             numpy_imgs = imgs.cpu().permute(0, 2, 3, 1).numpy()
             for j in range(len(numpy_imgs)):
@@ -85,10 +85,7 @@ def test(args, model, bert_model, crit, data_loader, device):
                 # output_img.show()
 
             I, U = util.computeIoU(numpy_outputs, numpy_targets)
-            if U == 0:
-                this_iou = 0.0
-            else:
-                this_iou = I * 1.0 / U
+            this_iou = 0.0 if U == 0 else I * 1.0 / U
             mean_IoU.append(this_iou)
             cum_I += I
             cum_U += U
@@ -97,12 +94,14 @@ def test(args, model, bert_model, crit, data_loader, device):
             torch.cuda.empty_cache()
 
         loss = loss / num
+        f.write(f"Total test loss: {loss}\n")
+
         mean_IoU = np.array(mean_IoU)
         mIoU = np.mean(mean_IoU)
-        info('Final results:')
-        info(f'Mean IoU is {mIoU * 100.: .2f}')
-        info(f'overall IoU = {cum_I * 100. / cum_U: .2f}')
-        f.write(f"Total test loss: {loss}\n")
+        info(f'Test result: mean IoU = {mIoU * 100.: .2f}')
+        info(f'Test result: overall IoU = {cum_I * 100. / cum_U: .2f}')
+        f.write(f'Mean IoU = {mIoU * 100.: .2f}')
+        f.write(f'Overall IoU = {cum_I * 100. / cum_U: .2f}')
 
 
 def train_one_epoch(args, epoch, model, bert_model, crit, optimizer, data_loader: data.DataLoader, device):
